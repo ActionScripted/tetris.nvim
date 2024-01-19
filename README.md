@@ -10,7 +10,7 @@ Using lazy.nvim:
 {
   "ActionScripted/tetris.nvim",
   dependencies = { "nvim-lua/plenary.nvim" },
-  cmd = { "CellularAutomaton" },
+  cmd = { "Tetris" },
   opts = {},
 }
 ```
