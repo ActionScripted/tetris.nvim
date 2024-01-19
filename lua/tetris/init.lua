@@ -48,6 +48,14 @@ local function create_window()
   }
 end
 
+function tetris.setup_mouse_handling(buffer)
+  -- Map all mouse events to a no-op in the game buffer to prevent unwanted interactions
+  local mouse_events = { "<LeftMouse>", "<RightMouse>", "<MiddleMouse>", "<Mouse>" }
+  for _, event in ipairs(mouse_events) do
+    vim.api.nvim_buf_set_keymap(buffer, "n", event, "<Nop>", { noremap = true, silent = true })
+  end
+end
+
 tetris.handle_quit = function()
   tetris.should_close = true
   print("closing...")
@@ -62,6 +70,11 @@ tetris.positions = {
 }
 
 tetris.draw_game = function(buffer)
+  if not vim.api.nvim_buf_is_valid(tetris.window.bufnr) then
+    print("Invalid buffer number. Exiting game loop.")
+    return
+  end
+
   -- Ensure each line is at least as long as the longest column index
   local lines = { " ", " " } -- Pre-filling lines with a space
   vim.api.nvim_buf_set_lines(buffer, 0, -1, false, lines)
@@ -122,6 +135,7 @@ end
 -- TODO: also, wtf is this tetris global business
 tetris.run = function()
   tetris.window = create_window()
+  tetris.setup_mouse_handling(tetris.window.bufnr)
   vim.api.nvim_buf_set_keymap(tetris.window.bufnr, "n", "<Esc>", "", { callback = tetris.close })
   tetris.loop()
 end
