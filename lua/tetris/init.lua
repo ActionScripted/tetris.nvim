@@ -1,64 +1,36 @@
-local async = require("plenary.async")
-local popup = require("plenary.popup")
+---local async = require("plenary.async")
 
-local tetris = {}
+local tetris = {
+  input = require("tetris.input"),
+  should_close = false,
+  ui = require("tetris.ui"),
+}
 
-tetris.should_close = false
+tetris.handlers = {}
 
-local function create_window()
-  local height = 10
-  local width = 60
-
-  local bufnr = vim.api.nvim_create_buf(false, true)
-
-  local tetris_win_id, win = popup.create(bufnr, {
-    border = true,
-    col = math.floor((vim.o.columns - width) / 2),
-    highlight = "TetrisWindow",
-    line = math.floor(((vim.o.lines - height) / 2) - 1),
-    minheight = height,
-    minwidth = width,
-    noautocmd = true,
-    title = "Tetris",
-  })
-
-  vim.api.nvim_create_autocmd("BufLeave", {
-    buffer = bufnr,
-    once = true,
-    callback = function()
-      pcall(vim.api.nvim_win_close, tetris_win_id, true)
-      pcall(vim.api.nvim_win_close, win.border.win_id, true)
-      require("telescope.utils").buf_delete(bufnr)
-    end,
-  })
-
-  -- add placeholder lines for score
-  --vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, { "Score: 0" })
-
-  -- make buffer read only, no input
-  --vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
-
-  -- respond to key presses
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "h", "", { callback = tetris.move_left })
-  vim.api.nvim_buf_set_keymap(bufnr, "n", "q", "", { callback = tetris.handle_quit })
-
-  return {
-    bufnr = bufnr,
-    win_id = tetris_win_id,
-  }
+tetris.handlers.left = function()
+  print("left")
 end
 
-function tetris.setup_mouse_handling(buffer)
-  -- Map all mouse events to a no-op in the game buffer to prevent unwanted interactions
-  local mouse_events = { "<LeftMouse>", "<RightMouse>", "<MiddleMouse>", "<Mouse>" }
-  for _, event in ipairs(mouse_events) do
-    vim.api.nvim_buf_set_keymap(buffer, "n", event, "<Nop>", { noremap = true, silent = true })
-  end
+tetris.handlers.down = function()
+  print("down")
 end
 
-tetris.handle_quit = function()
+tetris.handlers.rotate = function()
+  print("rotate")
+end
+
+tetris.handlers.right = function()
+  print("right")
+end
+
+tetris.handlers.pause = function()
+  print("pause")
+end
+
+tetris.handlers.quit = function()
   tetris.should_close = true
-  print("closing...")
+  vim.api.nvim_win_close(tetris.ui.window.id, true)
 end
 
 tetris.currentPosIndex = 1
@@ -70,7 +42,7 @@ tetris.positions = {
 }
 
 tetris.draw_game = function(buffer)
-  if not vim.api.nvim_buf_is_valid(tetris.window.bufnr) then
+  if not vim.api.nvim_buf_is_valid(tetris.ui.window.buffer) then
     print("Invalid buffer number. Exiting game loop.")
     return
   end
@@ -103,7 +75,7 @@ tetris.loop = function()
 
     -- Error handling
     local status, err = pcall(function()
-      tetris.draw_game(tetris.window.bufnr)
+      tetris.draw_game(tetris.ui.window.buffer)
     end)
 
     if not status then
@@ -123,20 +95,15 @@ end
 
 -- TODO: NO
 -- TODO: also, wtf is this tetris global business
-tetris.close = function()
-  vim.api.nvim_win_close(tetris.window.win_id, true)
-end
-
-tetris.move_left = function()
-  print("left")
-end
-
--- TODO: NO
--- TODO: also, wtf is this tetris global business
 tetris.run = function()
-  tetris.window = create_window()
-  tetris.setup_mouse_handling(tetris.window.bufnr)
-  vim.api.nvim_buf_set_keymap(tetris.window.bufnr, "n", "<Esc>", "", { callback = tetris.close })
+  -- Create UI
+  tetris.ui.create_window()
+
+  -- Setup input
+  tetris.input.setup_keys(tetris.ui.window.buffer, tetris.handlers)
+  tetris.input.setup_mouse(tetris.ui.window.buffer, tetris.handlers)
+
+  -- Start game (loop)
   tetris.loop()
 end
 
