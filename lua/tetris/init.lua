@@ -3,6 +3,7 @@
 local tetris = {
   input = require("tetris.input"),
   should_close = false,
+  speed = 200,
   ui = require("tetris.ui"),
 }
 
@@ -39,6 +40,7 @@ tetris.positions = {
   { line = 0, col = 1 },
   { line = 1, col = 1 },
   { line = 1, col = 0 },
+  { line = 2, col = 5 },
 }
 
 tetris.draw_game = function(buffer)
@@ -47,16 +49,17 @@ tetris.draw_game = function(buffer)
     return
   end
 
-  -- Ensure each line is at least as long as the longest column index
-  local lines = { " ", " " } -- Pre-filling lines with a space
-  vim.api.nvim_buf_set_lines(buffer, 0, -1, false, lines)
+  -- -- Ensure each line is at least as long as the longest column index
+  -- local lines = { " ", " " } -- Pre-filling lines with a space
+  -- vim.api.nvim_buf_set_lines(buffer, 0, -1, false, lines)
+  tetris.ui.flood_window()
 
   -- Get the current position
   local pos = tetris.positions[tetris.currentPosIndex]
 
   -- Draw the asterisk at the current position
   local character = "*" -- Your chosen character
-  vim.api.nvim_buf_set_text(buffer, pos.line, pos.col, pos.line, pos.col, { character })
+  vim.api.nvim_buf_set_text(buffer, pos.line, pos.col, pos.line, pos.col + 1, { character })
 
   -- Update to the next position, cycling back to start if at the end
   tetris.currentPosIndex = (tetris.currentPosIndex % #tetris.positions) + 1
@@ -64,7 +67,6 @@ tetris.draw_game = function(buffer)
 end
 
 tetris.loop = function()
-  local gameSpeed = 200
   tetris.should_close = false -- Ensure this starts as false
 
   local function gameTick()
@@ -85,7 +87,7 @@ tetris.loop = function()
 
     -- Schedule the next tick
     -- TODO: https://neovim.io/doc/user/lua.html#vim.uv
-    vim.defer_fn(gameTick, gameSpeed)
+    vim.defer_fn(gameTick, tetris.speed)
     print("Game tick scheduled") -- Debug message
   end
 
