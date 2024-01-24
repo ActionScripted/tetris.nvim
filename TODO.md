@@ -8,6 +8,8 @@
 - [ ] feat(ui): add pause screen
 - [ ] feat(ui): add score info
 - [ ] feat(ui): add start screen
+- [ ] feat(ui): namespace for highlights
 - [ ] perf(core): decouple game (loop) tick from level/speed
 - [ ] perf(core): double buffer for rendering
+- [ ] perf(core): should we try virtual text?
 - [ ] test(core): add tests

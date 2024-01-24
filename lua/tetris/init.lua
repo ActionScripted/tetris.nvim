@@ -43,6 +43,15 @@ tetris.positions = {
   { line = 2, col = 5 },
 }
 
+local function getCharWidth(char)
+  local byte = string.byte(char)
+  if byte >= 0 and byte <= 127 then
+    return 1 -- Standard ASCII
+  else
+    return 2 -- Common width for non-ASCII characters
+  end
+end
+
 tetris.draw_game = function(buffer)
   if not vim.api.nvim_buf_is_valid(tetris.ui.window.buffer) then
     print("Invalid buffer number. Exiting game loop.")
@@ -58,8 +67,13 @@ tetris.draw_game = function(buffer)
   local pos = tetris.positions[tetris.currentPosIndex]
 
   -- Draw the asterisk at the current position
-  local character = "*" -- Your chosen character
+  -- https://symbl.cc/en/unicode/table/#block-elements
+  local character = "▣"
   vim.api.nvim_buf_set_text(buffer, pos.line, pos.col, pos.line, pos.col + 1, { character })
+
+  -- NOTE: Unicode widths make this necessary
+  local char_width = getCharWidth(character)
+  vim.api.nvim_buf_add_highlight(buffer, -1, "TetrisBlock", pos.line, pos.col, pos.col + char_width + 1)
 
   -- Update to the next position, cycling back to start if at the end
   tetris.currentPosIndex = (tetris.currentPosIndex % #tetris.positions) + 1
@@ -98,6 +112,9 @@ end
 -- TODO: NO
 -- TODO: also, wtf is this tetris global business
 tetris.run = function()
+  -- TODO: NOT HERE
+  vim.api.nvim_set_hl(0, "TetrisBlock", { fg = "white", bg = "red" })
+
   -- Create UI
   tetris.ui.create_window()
 
