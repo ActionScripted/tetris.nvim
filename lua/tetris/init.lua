@@ -101,9 +101,8 @@ tetris.run = function()
   -- Create UI
   tetris.ui.create_window()
 
-  -- Setup input
-  tetris.input.setup_keys(tetris.ui.window.buffer, tetris.handlers)
-  tetris.input.setup_mouse(tetris.ui.window.buffer, tetris.handlers)
+  -- Setup input (bindings)
+  tetris.input.setup(tetris.ui.window.buffer, tetris.handlers)
 
   -- Start game (loop)
   tetris.loop()

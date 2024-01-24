@@ -1,25 +1,29 @@
 local input = {}
 
 input.mappings = {
+  ["<Esc>"] = "quit",
+  ["<LeftMouse>"] = "noop",
+  ["<MiddleMouse>"] = "noop",
+  ["<Mouse>"] = "noop",
+  ["<RightMouse>"] = "noop",
   h = "left",
   j = "down",
   k = "rotate",
   l = "right",
   p = "pause",
   q = "quit",
-  ["<Esc>"] = "quit",
 }
 
-input.setup_keys = function(buffer, handlers)
+--- Setup bindings for our primary buffer.
+--- @param buffer any
+--- @param handlers any
+input.setup = function(buffer, handlers)
   for key, action in pairs(input.mappings) do
-    vim.api.nvim_buf_set_keymap(buffer, "n", key, "", { callback = handlers[action] })
-  end
-end
-
-input.setup_mouse = function(buffer, handlers)
-  local mouse_events = { "<LeftMouse>", "<RightMouse>", "<MiddleMouse>", "<Mouse>" }
-  for _, event in ipairs(mouse_events) do
-    vim.api.nvim_buf_set_keymap(buffer, "n", event, "<Nop>", { noremap = true, silent = true })
+    if action == "noop" then
+      vim.api.nvim_buf_set_keymap(buffer, "n", key, "<Nop>", { noremap = true, silent = true })
+    else
+      vim.api.nvim_buf_set_keymap(buffer, "n", key, "", { callback = handlers[action] })
+    end
   end
 end
 
