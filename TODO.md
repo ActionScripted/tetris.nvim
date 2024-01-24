@@ -9,3 +9,4 @@
 - [ ] feat(ui): add score info
 - [ ] feat(ui): add start screen
 - [ ] perf(core): decouple game (loop) tick from level/speed
+- [ ] perf(core): double buffer for rendering
