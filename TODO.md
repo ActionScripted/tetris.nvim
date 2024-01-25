@@ -13,3 +13,4 @@
 - [ ] perf(core): double buffer for rendering
 - [ ] perf(core): should we try virtual text?
 - [ ] test(core): add tests
+- [ ] feat(ui): hide cursor/input/block

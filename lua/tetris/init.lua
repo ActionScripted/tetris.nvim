@@ -3,7 +3,7 @@
 local tetris = {
   input = require("tetris.input"),
   should_close = false,
-  speed = 200,
+  speed = 60,
   ui = require("tetris.ui"),
 }
 
@@ -36,11 +36,10 @@ end
 
 tetris.currentPosIndex = 1
 tetris.positions = {
-  { line = 0, col = 0 },
-  { line = 0, col = 1 },
-  { line = 1, col = 1 },
-  { line = 1, col = 0 },
-  { line = 2, col = 5 },
+  { line = 4, col = 4 },
+  { line = 4, col = 5 },
+  { line = 5, col = 5 },
+  { line = 5, col = 4 },
 }
 
 local function getCharWidth(char)
@@ -52,6 +51,8 @@ local function getCharWidth(char)
   end
 end
 
+tetris.score = 0
+
 tetris.draw_game = function(buffer)
   if not vim.api.nvim_buf_is_valid(tetris.ui.window.buffer) then
     print("Invalid buffer number. Exiting game loop.")
@@ -61,7 +62,20 @@ tetris.draw_game = function(buffer)
   -- -- Ensure each line is at least as long as the longest column index
   -- local lines = { " ", " " } -- Pre-filling lines with a space
   -- vim.api.nvim_buf_set_lines(buffer, 0, -1, false, lines)
-  tetris.ui.flood_window()
+  tetris.ui.draw_layout_main()
+
+  tetris.score = tetris.score + 10
+
+  -- TODO: keep positions (row,col) for this in layout, probaly
+  vim.api.nvim_buf_set_extmark(tetris.ui.window.buffer, tetris.namespace, 4, 31, {
+    virt_text = { { tostring(tetris.score), "TetrisScore" } },
+    virt_text_pos = "overlay",
+  })
+
+  vim.api.nvim_buf_set_extmark(tetris.ui.window.buffer, tetris.namespace, 7, 31, {
+    virt_text = { { tostring(tetris.score), "TetrisScore" } },
+    virt_text_pos = "overlay",
+  })
 
   -- Get the current position
   local pos = tetris.positions[tetris.currentPosIndex]
@@ -69,11 +83,10 @@ tetris.draw_game = function(buffer)
   -- Draw the asterisk at the current position
   -- https://symbl.cc/en/unicode/table/#block-elements
   local character = "▣"
-  vim.api.nvim_buf_set_text(buffer, pos.line, pos.col, pos.line, pos.col + 1, { character })
-
-  -- NOTE: Unicode widths make this necessary
-  local char_width = getCharWidth(character)
-  vim.api.nvim_buf_add_highlight(buffer, -1, "TetrisBlock", pos.line, pos.col, pos.col + char_width + 1)
+  vim.api.nvim_buf_set_extmark(buffer, tetris.namespace, pos.line, pos.col, {
+    virt_text = { { character, "TetrisBlock" } },
+    virt_text_pos = "overlay",
+  })
 
   -- Update to the next position, cycling back to start if at the end
   tetris.currentPosIndex = (tetris.currentPosIndex % #tetris.positions) + 1
@@ -114,6 +127,9 @@ end
 tetris.run = function()
   -- TODO: NOT HERE
   vim.api.nvim_set_hl(0, "TetrisBlock", { fg = "white", bg = "red" })
+  vim.api.nvim_set_hl(0, "TetrisScore", { fg = "white", bg = "green" })
+
+  tetris.namespace = vim.api.nvim_create_namespace("tetris")
 
   -- Create UI
   tetris.ui.create_window()
