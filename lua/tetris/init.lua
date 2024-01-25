@@ -1,7 +1,10 @@
 ---local async = require("plenary.async")
+require("tetris.math")
 
 local tetris = {
   input = require("tetris.input"),
+  score_max = 99999999,
+  score_min = 0,
   should_close = false,
   speed = 60,
   ui = require("tetris.ui"),
@@ -64,7 +67,8 @@ tetris.draw_game = function(buffer)
   -- vim.api.nvim_buf_set_lines(buffer, 0, -1, false, lines)
   tetris.ui.draw_layout_main()
 
-  tetris.score = tetris.score + 10
+  -- TODO: ew
+  tetris.score = math.clamp(tetris.score + 10, tetris.score_min, tetris.score_max)
 
   -- TODO: keep positions (row,col) for this in layout, probaly
   vim.api.nvim_buf_set_extmark(tetris.ui.window.buffer, tetris.namespace, 4, 31, {

@@ -1,5 +1,8 @@
+---Input mappings and handlers.
 local input = {}
 
+---Mappings from inputs to actions.
+---@type table
 input.mappings = {
   ["<Esc>"] = "quit",
   ["<LeftMouse>"] = "noop",
@@ -14,9 +17,9 @@ input.mappings = {
   q = "quit",
 }
 
---- Setup bindings for our primary buffer.
---- @param buffer any
---- @param handlers any
+---Setup bindings for our primary buffer.
+---@param buffer any
+---@param handlers any
 input.setup = function(buffer, handlers)
   for key, action in pairs(input.mappings) do
     if action == "noop" then

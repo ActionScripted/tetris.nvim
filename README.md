@@ -14,3 +14,11 @@ Using lazy.nvim:
   opts = {},
 }
 ```
+
+## Configuration
+
+TODO. But right now, nothing to configure. EZPZ.
+
+## Development
+
+Leaning on [Lua Language Server](https://luals.github.io/) for annotations and docs.

@@ -1,0 +1,8 @@
+*lazy.nvim.txt*                                   Last change: 2024 January 25
+
+==============================================================================
+Table of Contents                              *tetris.nvim-table-of-contents*
+
+1. tetris.nvim                                       |tetris.nvim-tetris.nvim|
+
+**tetris.nvim** is a pure Lua Tetris game for Neovim.
