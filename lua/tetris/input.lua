@@ -1,7 +1,5 @@
----Input mappings and handlers.
 local input = {}
 
----Mappings from inputs to actions.
 ---@type table
 input.mappings = {
   ["<Esc>"] = "quit",
@@ -17,7 +15,6 @@ input.mappings = {
   q = "quit",
 }
 
----Setup bindings for our primary buffer.
 ---@param buffer any
 ---@param handlers any
 input.setup = function(buffer, handlers)

@@ -1,9 +1,8 @@
----Layouts (views) for the game.
-local layouts = {}
+local layouts = {
+  cache = {},
+}
 
----Convert a string to a table of strings.
----For drawing to buffers we need a table of strings, where each string
----is a line. But it's not fun to define layouts as tables.
+---Convert a string to a table of strings for writing to buffers.
 ---@param layout string
 ---@return table
 local string_to_table = function(layout)
@@ -14,10 +13,13 @@ local string_to_table = function(layout)
   return lines
 end
 
----Main layout.
 ---@return table
 layouts.main = function()
-  local layout = [[
+  if layouts.cache.main then
+    return layouts.cache.main
+  end
+
+  layouts.cache.main = string_to_table([[
 ╭───────────────────────────────────╮
 │            TETRIS.NVIM            │
 ├────────────────────────┬──────────┤
@@ -41,8 +43,9 @@ layouts.main = function()
 │                        │          │
 │                        │          │
 ╰────────────────────────┴──────────╯
-]]
-  return string_to_table(layout)
+]])
+
+  return layouts.cache.main
 end
 
 return layouts

@@ -1,9 +1,6 @@
---- UI module for Tetris.nvim
-
 local layouts = require("tetris.layouts")
 local popup = require("plenary.popup")
 
---- UI state, mostly.
 local ui = {
   window = {
     buffer = nil,
@@ -13,8 +10,6 @@ local ui = {
   },
 }
 
----Create window and window homies like buffer and
----setup autocmds to close them when we leave.
 ui.create_window = function()
   ui.window.buffer = vim.api.nvim_create_buf(false, true)
 
