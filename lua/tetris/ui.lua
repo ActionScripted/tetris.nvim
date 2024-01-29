@@ -1,5 +1,4 @@
 local layouts = require("tetris.layouts")
-local popup = require("plenary.popup")
 
 local ui = {
   window = {
@@ -13,14 +12,19 @@ local ui = {
 ui.create_window = function()
   ui.window.buffer = vim.api.nvim_create_buf(false, true)
 
-  local win_id, win = popup.create(ui.window.buffer, {
-    border = false,
+  -- local win_id, win = popup.create(ui.window.buffer, {
+  --   border = false,
+  --   col = math.floor((vim.o.columns - ui.window.width) / 2),
+  --   line = math.floor(((vim.o.lines - ui.window.height) / 2) - 1),
+  -- })
+
+  local win_id = vim.api.nvim_open_win(ui.window.buffer, true, {
     col = math.floor((vim.o.columns - ui.window.width) / 2),
-    highlight = "TetrisWindow",
-    line = math.floor(((vim.o.lines - ui.window.height) / 2) - 1),
-    minheight = ui.window.height,
-    minwidth = ui.window.width,
-    noautocmd = true,
+    height = ui.window.height,
+    relative = "editor",
+    row = math.floor(((vim.o.lines - ui.window.height) / 2) - 1),
+    style = "minimal",
+    width = ui.window.width,
   })
 
   ui.window.id = win_id
@@ -35,10 +39,6 @@ ui.create_window = function()
       require("telescope.utils").buf_delete(ui.window.buffer)
     end,
   })
-
-  -- Hide the cursor, maybe?
-  -- Define a custom cursor highlight that is transparent or matches the background
-  vim.api.nvim_win_set_option(win_id, "winhl", "Cursor:CustomCursor")
 end
 
 ---Fill/flood the game window with empty spaces.

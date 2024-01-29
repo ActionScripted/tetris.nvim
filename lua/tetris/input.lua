@@ -1,12 +1,17 @@
+local events = require("tetris.events")
 local input = {}
 
 ---@type table
-input.mappings = {
+local mappings = {
+  ["<Down>"] = "down",
   ["<Esc>"] = "quit",
+  ["<Left>"] = "left",
   ["<LeftMouse>"] = "noop",
   ["<MiddleMouse>"] = "noop",
   ["<Mouse>"] = "noop",
+  ["<Right>"] = "right",
   ["<RightMouse>"] = "noop",
+  ["<Up>"] = "rotate",
   h = "left",
   j = "down",
   k = "rotate",
@@ -16,13 +21,16 @@ input.mappings = {
 }
 
 ---@param buffer any
----@param handlers any
-input.setup = function(buffer, handlers)
-  for key, action in pairs(input.mappings) do
+input.setup = function(buffer)
+  for key, action in pairs(mappings) do
     if action == "noop" then
       vim.api.nvim_buf_set_keymap(buffer, "n", key, "<Nop>", { noremap = true, silent = true })
     else
-      vim.api.nvim_buf_set_keymap(buffer, "n", key, "", { callback = handlers[action] })
+      vim.api.nvim_buf_set_keymap(buffer, "n", key, "", {
+        callback = function()
+          events.emit(action, buffer)
+        end,
+      })
     end
   end
 end
