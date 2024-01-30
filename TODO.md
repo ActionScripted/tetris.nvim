@@ -1,6 +1,7 @@
 # TODO
 
 - [ ] docs: use kdheepak/panvimdoc or equivalent
+- [ ] feat(core): add options for classic and modern systems
 - [ ] feat(core): add pieces
 - [ ] feat(input): add piece movement
 - [ ] feat(input): add piece rotation

@@ -1,7 +1,6 @@
 local EventHandler = {}
 local listeners = {}
 
----Register a listener for an event.
 ---@param event any
 ---@param listener any
 function EventHandler.on(event, listener)
@@ -11,7 +10,6 @@ function EventHandler.on(event, listener)
   table.insert(listeners[event], listener)
 end
 
----Unregister a listener for an event.
 ---@param event any
 ---@param listener any
 function EventHandler.off(event, listener)
@@ -26,7 +24,6 @@ function EventHandler.off(event, listener)
   end
 end
 
----Emit an event.
 ---@param event any
 ---@param ... unknown
 function EventHandler.emit(event, ...)

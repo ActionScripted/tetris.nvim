@@ -1,60 +1,78 @@
-local layouts = require("tetris.layouts")
-
 local ui = {
-  window = {
-    buffer = nil,
-    height = 23,
-    id = nil,
-    width = 37,
-  },
+  buffer = nil,
+  window = nil,
 }
 
+---Necessary for writing to buffers.
+---@param layout string
+---@return table
+local string_to_table = function(layout)
+  local lines = {}
+  for s in layout:gmatch("[^\r\n]+") do
+    table.insert(lines, s)
+  end
+  return lines
+end
+
+ui.layout = string_to_table([[
+╭───────────────────────────────────────╮
+│              TETRIS.NVIM              │
+├────────────────────────┬──────────────┤
+│                        │ TOP          │
+│                        │              │
+│                        ├──────────────┤
+│                        │ SCORE        │
+│                        │              │
+│                        ├──────────────┤
+│                        │ LEVEL        │
+│                        │              │
+│                        ├──────────────┤
+│                        │ NEXT         │
+│                        │ ╭──────────╮ │
+│                        │ │          │ │
+│                        │ │          │ │
+│                        │ │          │ │
+│                        │ │          │ │
+│                        │ ╰──────────╯ │
+│                        │              │
+│                        │              │
+│                        │              │
+╰────────────────────────┴──────────────╯
+]])
+
+ui.pos_cursor = { 2, 41 }
+ui.pos_level = { 11, 31 }
+ui.pos_next = { 15, 35 }
+ui.pos_score = { 8, 31 }
+ui.pos_top = { 5, 31 }
+
+ui.draw_layout = function()
+  vim.api.nvim_buf_set_lines(ui.buffer, 0, -1, false, ui.layout)
+end
+
 ui.create_window = function()
-  ui.window.buffer = vim.api.nvim_create_buf(false, true)
+  local height = #ui.layout
+  local width = vim.fn.strdisplaywidth(ui.layout[1])
 
-  -- local win_id, win = popup.create(ui.window.buffer, {
-  --   border = false,
-  --   col = math.floor((vim.o.columns - ui.window.width) / 2),
-  --   line = math.floor(((vim.o.lines - ui.window.height) / 2) - 1),
-  -- })
-
-  local win_id = vim.api.nvim_open_win(ui.window.buffer, true, {
-    col = math.floor((vim.o.columns - ui.window.width) / 2),
-    height = ui.window.height,
+  ui.buffer = vim.api.nvim_create_buf(false, true)
+  ui.window = vim.api.nvim_open_win(ui.buffer, true, {
+    col = math.floor((vim.o.columns - width) / 2),
+    height = height,
     relative = "editor",
-    row = math.floor(((vim.o.lines - ui.window.height) / 2) - 1),
+    row = math.floor(((vim.o.lines - height) / 2) - 1),
     style = "minimal",
-    width = ui.window.width,
+    width = width,
   })
-
-  ui.window.id = win_id
 
   vim.api.nvim_create_autocmd("BufLeave", {
-    buffer = ui.window.buffer,
-    once = true,
+    buffer = ui.buffer,
     callback = function()
-      pcall(vim.api.nvim_win_close, win_id, true)
-      --pcall(vim.api.nvim_win_close, win.border.win_id, true)
-      -- TODO: require telescope
-      require("telescope.utils").buf_delete(ui.window.buffer)
+      pcall(vim.api.nvim_buf_delete, ui.buffer, { force = true })
+      pcall(vim.api.nvim_win_close, ui.window, true)
     end,
   })
-end
 
----Fill/flood the game window with empty spaces.
----We CANNOT write to specific lines/cols in the buffer without there
----already being text there. So we flood the area to avoid errors.
-ui.flood_window = function()
-  local lines = {}
-  for _ = 1, ui.window.height do
-    table.insert(lines, string.rep(" ", ui.window.width))
-  end
-  vim.api.nvim_buf_set_lines(ui.window.buffer, 0, -1, false, lines)
-end
-
----Draw our main layout to our main buffer.
-ui.draw_layout_main = function()
-  vim.api.nvim_buf_set_lines(ui.window.buffer, 0, -1, false, layouts.main())
+  ui.draw_layout()
 end
 
 return ui
