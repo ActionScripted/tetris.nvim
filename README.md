@@ -9,7 +9,6 @@ Using lazy.nvim:
 ```lua
 {
   "ActionScripted/tetris.nvim",
-  dependencies = { "nvim-lua/plenary.nvim" },
   cmd = { "Tetris" },
   opts = {},
 }
