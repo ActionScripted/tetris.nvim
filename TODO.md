@@ -15,4 +15,5 @@
 - [ ] perf(core): decouple game (loop) tick from level/speed
 - [ ] perf(core): double buffer for rendering
 - [ ] perf(core): should we try virtual text?
+- [ ] perf(ui): are we creating thousands of extmarks?
 - [ ] test(core): add tests

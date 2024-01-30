@@ -1,18 +1,18 @@
 local EventHandler = {}
 local listeners = {}
 
----@param event any
----@param listener any
-function EventHandler.on(event, listener)
+---@param event string
+---@param listener function
+EventHandler.on = function(event, listener)
   if not listeners[event] then
     listeners[event] = {}
   end
   table.insert(listeners[event], listener)
 end
 
----@param event any
----@param listener any
-function EventHandler.off(event, listener)
+---@param event string
+---@param listener function
+EventHandler.off = function(event, listener)
   if not listeners[event] then
     return
   end
@@ -24,9 +24,9 @@ function EventHandler.off(event, listener)
   end
 end
 
----@param event any
+---@param event string
 ---@param ... unknown
-function EventHandler.emit(event, ...)
+EventHandler.emit = function(event, ...)
   if listeners[event] then
     for _, listener in ipairs(listeners[event]) do
       listener(...)
