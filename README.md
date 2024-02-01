@@ -73,7 +73,7 @@ Available events:
 
 ## 🚀 Usage
 
-To start the game run `:Tetris` or `<leader>T` (if you have the lazy.nvim config from above).
+To start the game run `:Tetris` or `<leader>T` if you have the lazy.nvim config from above.
 
 ## 🛠️ Development
 
