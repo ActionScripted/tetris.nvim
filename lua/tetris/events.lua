@@ -1,24 +1,30 @@
 local EventHandler = {}
-local listeners = {}
 
----@param event string
----@param listener function
-EventHandler.on = function(event, listener)
-  if not listeners[event] then
-    listeners[event] = {}
-  end
-  table.insert(listeners[event], listener)
+function EventHandler:new()
+  local instance = setmetatable({}, EventHandler)
+  instance.listeners = {}
+  self.__index = self
+  return instance
 end
 
 ---@param event string
 ---@param listener function
-EventHandler.off = function(event, listener)
-  if not listeners[event] then
+function EventHandler:on(event, listener)
+  if not self.listeners[event] then
+    self.listeners[event] = {}
+  end
+  table.insert(self.listeners[event], listener)
+end
+
+---@param event string
+---@param listener function
+function EventHandler:off(event, listener)
+  if not self.listeners[event] then
     return
   end
-  for i, l in ipairs(listeners[event]) do
+  for i, l in ipairs(self.listeners[event]) do
     if l == listener then
-      table.remove(listeners[event], i)
+      table.remove(self.listeners[event], i)
       break
     end
   end
@@ -26,9 +32,9 @@ end
 
 ---@param event string
 ---@param ... unknown
-EventHandler.emit = function(event, ...)
-  if listeners[event] then
-    for _, listener in ipairs(listeners[event]) do
+function EventHandler:emit(event, ...)
+  if self.listeners[event] then
+    for _, listener in ipairs(self.listeners[event]) do
       listener(...)
     end
   end

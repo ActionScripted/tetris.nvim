@@ -10,13 +10,65 @@ Using lazy.nvim:
 {
   "ActionScripted/tetris.nvim",
   cmd = { "Tetris" },
-  opts = {},
+  opts = {
+    -- your awesome configuration here
+  },
 }
 ```
 
 ## Configuration
 
-TODO. But right now, nothing to configure. EZPZ.
+These are the defaults:
+
+```lua
+{
+  mappings = {
+    ["<Down>"] = "down",
+    ["<Esc>"] = "quit",
+    ["<Left>"] = "left",
+    ["<LeftMouse>"] = "noop",
+    ["<MiddleMouse>"] = "noop",
+    ["<Mouse>"] = "noop",
+    ["<Right>"] = "right",
+    ["<RightMouse>"] = "noop",
+    ["<Space>"] = "drop",
+    ["<Up>"] = "rotate",
+    h = "left",
+    j = "down",
+    k = "rotate",
+    l = "right",
+    p = "pause",
+    q = "quit",
+  },
+}
+```
+
+You can override these or add your own, for example:
+
+```lua
+{
+  mappings = {
+    ["<Space>"] = "noop",
+    a = "left",
+    d = "right",
+    s = "down",
+    w = "rotate",
+  },
+}
+```
+
+Available events:
+
+| Event  | Description      |
+| ------ | ---------------- |
+| down   | Move piece down  |
+| drop   | Drop piece       |
+| left   | Move piece left  |
+| noop   | Do nothing       |
+| pause  | Pause game       |
+| quit   | Quit game        |
+| right  | Move piece right |
+| rotate | Rotate piece     |
 
 ## Development
 
