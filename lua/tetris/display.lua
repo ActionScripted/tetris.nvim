@@ -47,6 +47,11 @@ function Display:new()
   return instance
 end
 
+---@param name string
+---@param row number
+---@param col number
+---@param text string
+---@param style string
 function Display:_set_extmark(name, row, col, text, style)
   if not self.extmarks[name] then
     self.extmarks[name] = vim.api.nvim_buf_set_extmark(self.buffer, self.namespace, row, col, {
@@ -84,24 +89,29 @@ function Display:draw_layout()
   vim.api.nvim_buf_set_lines(self.buffer, 0, -1, false, self.layout)
 end
 
+---@param level string
 function Display:draw_level(level)
   self:_set_extmark("level", self.pos_level[1] - 1, self.pos_level[2], level, "TetrisLevel")
 end
 
+---@param score string
 function Display:draw_score(score)
   self:_set_extmark("score", self.pos_score[1] - 1, self.pos_score[2], score, "TetrisScore")
 end
 
+---@param top string
 function Display:draw_top(top)
   self:_set_extmark("top", self.pos_top[1] - 1, self.pos_top[2], top, "TetrisTop")
 end
 
+---@param next_shape TetrisShape
 function Display:draw_next(next_shape)
   local hl = "TetrisShape-" .. next_shape.color
   self:_set_extmark("next1", self.pos_next[1] - 1, self.pos_next[2], next_shape.display[1], hl)
   self:_set_extmark("next2", self.pos_next[1], self.pos_next[2], next_shape.display[2], hl)
 end
 
+---@param shapes TetrisShape[]
 function Display:setup(shapes)
   local height = #self.layout
   local width = vim.fn.strdisplaywidth(self.layout[1])

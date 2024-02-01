@@ -1,4 +1,4 @@
----If you make me type "tetromino", I will be very upset
+---If you make me type "tetromino", I will be VERY unhappy.
 
 ---@class TetrisShape
 ---@field color string

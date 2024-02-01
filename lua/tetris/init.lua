@@ -15,7 +15,8 @@ local tetris = {
   score_min = 0,
 }
 
-tetris.run = function()
+---@param options TetrisOptions
+tetris.run = function(options)
   local is_paused = false
   local is_quitting = false
   local score = 0
@@ -25,7 +26,7 @@ tetris.run = function()
   local input = Input:new()
 
   display:setup(shapes)
-  input:setup(display.buffer, config.options.mappings, events)
+  input:setup(display.buffer, options.mappings, events)
 
   events:on("left", function()
     print("left")
@@ -67,9 +68,9 @@ tetris.run = function()
 
         display:draw_layout()
 
-        display:draw_level(score)
-        display:draw_score(score)
-        display:draw_top(score)
+        display:draw_level(tostring(score))
+        display:draw_score(tostring(score))
+        display:draw_top(tostring(score))
 
         display:draw_next(next_shape)
 
@@ -88,11 +89,12 @@ tetris.run = function()
   tick()
 end
 
+---@param options TetrisOptions
 tetris.setup = function(options)
   config.setup(options)
 
   vim.api.nvim_create_user_command("Tetris", function()
-    tetris.run()
+    tetris.run(config.options)
   end, { nargs = 0 })
 end
 

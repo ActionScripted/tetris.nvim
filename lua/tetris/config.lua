@@ -26,10 +26,9 @@ local defaults = {
 ---@type TetrisOptions
 config.options = {}
 
+---@param options TetrisOptions
 function config.setup(options)
   config.options = vim.tbl_deep_extend("force", {}, defaults, options or {})
 end
-
-config.setup()
 
 return config
