@@ -14,7 +14,7 @@
 - [ ] perf(core): should we try virtual text?
 - [ ] test(core): add tests
 
-# DONE
+## DONE
 
 - [x] feat(core): add pieces
 - [x] feat(pieces): change colors and/or support themes
