@@ -10,13 +10,14 @@ Using lazy.nvim:
 {
   "ActionScripted/tetris.nvim",
   cmd = { "Tetris" },
+  keys = { { "<leader>T", "<cmd>Tetris<cr>", desc = "Tetris" } },
   opts = {
     -- your awesome configuration here
   },
 }
 ```
 
-## 🎛️ Configuration
+## ⚙️ Configuration
 
 These are the defaults:
 
@@ -69,6 +70,10 @@ Available events:
 | quit   | Quit game        |
 | right  | Move piece right |
 | rotate | Rotate piece     |
+
+## 🚀 Usage
+
+To start the game run `:Tetris` or `<leader>T` (if you have the lazy.nvim config from above).
 
 ## 🛠️ Development
 
