@@ -1,8 +1,8 @@
-# tetris.nvim
+# 🧱 tetris.nvim
 
 Pure Lua tetris game for Neovim.
 
-## Installation
+## 📦 Installation
 
 Using lazy.nvim:
 
@@ -16,7 +16,7 @@ Using lazy.nvim:
 }
 ```
 
-## Configuration
+## 🎛️ Configuration
 
 These are the defaults:
 
@@ -70,9 +70,9 @@ Available events:
 | right  | Move piece right |
 | rotate | Rotate piece     |
 
-## Development
+## 🛠️ Development
 
-We're trying to follow the Super Rotation System (SRS) that dictates how pieces spawn and rotate. This also includes stuff like wall kicks, infinity and other terrific tetromino-related terminology.
+We're trying to follow the Super Rotation System (SRS) that dictates how pieces spawn and rotate. This also includes stuff like wall kicks, infinity and other tetromino-related terminology:
 
 - <https://tetris.wiki/Super_Rotation_System>
 - <https://harddrop.com/wiki/SRS>
