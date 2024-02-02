@@ -25,6 +25,7 @@ These are the defaults:
 
 ```lua
 {
+  debug = false,
   mappings = {
     ["<Down>"] = "down",
     ["<Esc>"] = "quit",
@@ -83,5 +84,7 @@ We're trying to follow the Super Rotation System (SRS) that dictates how pieces 
 
 - <https://tetris.wiki/Super_Rotation_System>
 - <https://harddrop.com/wiki/SRS>
+
+If you need shapes check out <https://symbl.cc/en/unicode/table/#block-elements>.
 
 Leaning on [Lua Language Server](https://luals.github.io/) for annotations and docs.

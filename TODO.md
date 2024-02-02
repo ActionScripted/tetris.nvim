@@ -8,7 +8,6 @@
 - [ ] feat(ui): add pause screen
 - [ ] feat(ui): add score info
 - [ ] feat(ui): add start screen
-- [ ] feat(ui): hide cursor/input/block
 - [ ] perf(core): decouple game (loop) tick from level/speed
 - [ ] perf(core): double buffer for rendering
 - [ ] perf(core): should we try virtual text?
@@ -19,6 +18,7 @@
 - [x] feat(core): add pieces
 - [x] feat(pieces): change colors and/or support themes
 - [x] feat(ui): add next piece preview
+- [x] feat(ui): hide cursor/input/block
 - [x] feat(ui): namespace for highlights
 - [x] perf(ui): are we creating thousands of extmarks?
 
