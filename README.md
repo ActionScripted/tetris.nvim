@@ -1,6 +1,8 @@
 # 🧱 tetris.nvim
 
-Pure Lua tetris game for Neovim.
+Pure Lua tetris game for Neovim!
+
+![tetris.nvim](https://raw.githubusercontent.com/ActionScripted/tetris.nvim/main/media/social-1280x640.jpg)
 
 ## 📦 Installation
 
