@@ -1,6 +1,7 @@
 # TODO
 
 - [ ] docs: use kdheepak/panvimdoc or equivalent
+- [ ] feat(core): add chaos mode ( piece swap mid-drop, broken UI, noclip, etc.)
 - [ ] feat(core): add options for classic and modern systems
 - [ ] feat(input): add piece movement
 - [ ] feat(input): add piece rotation
