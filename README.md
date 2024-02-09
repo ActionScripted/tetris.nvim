@@ -51,6 +51,8 @@ You can override these or add your own, for example:
 
 ```lua
 {
+  -- https://symbl.cc/en/unicode/table/#block-elements
+  block = "╋",
   mappings = {
     ["<Space>"] = "noop",
     a = "left",

@@ -35,7 +35,7 @@ tetris.run = function(options)
   ---"but in a game...a common trick", Lua docs
   math.randomseed(os.time())
 
-  renderer:setup(shapes)
+  renderer:setup(config, shapes)
   input:setup(renderer.buffer, options.mappings, events)
 
   events:on("left", function()

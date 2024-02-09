@@ -3,6 +3,7 @@ local config = {}
 ---@class TetrisOptions
 ---NOTE: If you change these, update the README!
 local defaults = {
+  block = "█",
   debug = false,
   mappings = {
     ["<Down>"] = "down",

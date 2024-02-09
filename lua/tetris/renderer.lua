@@ -5,9 +5,10 @@ local Renderer = {}
 function Renderer:new()
   local instance = setmetatable({}, Renderer)
 
+  instance.block = "X"
   instance.buffer = nil
-  instance.guicursor = vim.o.guicursor
   instance.extmarks = {}
+  instance.guicursor = vim.o.guicursor
   instance.namespace = nil
   instance.window = nil
 
@@ -119,7 +120,7 @@ function Renderer:debug()
   local extmarks = vim.api.nvim_buf_get_extmarks(self.buffer, self.namespace, 0, -1, { details = false })
   self:_set_extmark("extmarks", 1, 3, tostring(#extmarks) .. "(" .. extmarks_debug .. ")", "TetrisShape-red")
 end
---
+
 ---@param shape TetrisShape
 ---@param x number
 ---@param y number
@@ -134,7 +135,8 @@ function Renderer:draw_shape(shape, x, y, rotation)
       local char = shape.data:sub(index + 1, index + 1)
 
       if char == "X" then
-        self:_set_extmark("c" .. index, y_trans + sy, (x_trans + sx) * 2, "██", "TetrisShape-" .. shape.color)
+        local out = self.block .. self.block
+        self:_set_extmark("c" .. index, y_trans + sy, (x_trans + sx) * 2, out, "TetrisShape-" .. shape.color)
       else
         self:_del_extmark("c" .. index)
       end
@@ -169,9 +171,11 @@ function Renderer:draw_next(next_shape)
 end
 
 ---@param shapes TetrisShape[]
-function Renderer:setup(shapes)
+function Renderer:setup(config, shapes)
   local height = #self.layout
   local width = vim.fn.strdisplaywidth(self.layout[1])
+
+  self.block = config.options.block
 
   self.buffer = vim.api.nvim_create_buf(false, true)
   self.namespace = vim.api.nvim_create_namespace("tetris")
