@@ -25,6 +25,7 @@ These are the defaults:
 
 ```lua
 {
+  block = "█",
   debug = false,
   mappings = {
     ["<Down>"] = "down",
@@ -51,6 +52,7 @@ You can override these or add your own, for example:
 
 ```lua
 {
+  -- Hey, get weird:
   -- https://symbl.cc/en/unicode/table/#block-elements
   block = "╋",
   mappings = {
