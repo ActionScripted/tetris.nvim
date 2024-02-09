@@ -93,5 +93,5 @@ Leaning on [Lua Language Server](https://luals.github.io/) for annotations and d
 
 - **Inspiration: <https://www.youtube.com/watch?v=8OK8_tHeCIA>**
   - <https://github.com/OneLoneCoder/Javidx9/blob/master/SimplyCode/OneLoneCoder_Tetris.cpp>
-  - Big shout out to @Javidx9. This is basically your baby in a funny outfit.
+  - Big shout out to @OneLoneCoder / @Javidx9. This is basically your baby in a funny outfit.
 - Unicode symbols: <https://symbl.cc/en/unicode/table/#block-elements>
