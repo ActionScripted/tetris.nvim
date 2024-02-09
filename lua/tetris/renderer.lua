@@ -51,6 +51,14 @@ function Renderer:new()
 end
 
 ---@param name string
+function Renderer:_del_extmark(name)
+  if self.extmarks[name] then
+    vim.api.nvim_buf_del_extmark(self.buffer, self.namespace, self.extmarks[name])
+    self.extmarks[name] = nil
+  end
+end
+
+---@param name string
 ---@param row number
 ---@param col number
 ---@param text string
@@ -117,11 +125,21 @@ end
 ---@param y number
 ---@param rotation number
 function Renderer:draw_shape(shape, x, y, rotation)
-  local x_trans = (x * 2) + self.pos_field_start[1]
+  local x_trans = x + self.pos_field_start[1]
   local y_trans = y + self.pos_field_start[2]
 
-  self:_set_extmark("c1", y_trans, x_trans, shape.display[1], "TetrisShape-" .. shape.color)
-  self:_set_extmark("c2", y_trans + 1, x_trans, shape.display[2], "TetrisShape-" .. shape.color)
+  for sy = 0, shape.size - 1 do
+    for sx = 0, shape.size - 1 do
+      local index = utils.rotated_index(sx, sy, shape.size, rotation)
+      local char = shape.data:sub(index + 1, index + 1)
+
+      if char == "X" then
+        self:_set_extmark("c" .. index, y_trans + sy, (x_trans + sx) * 2, "██", "TetrisShape-" .. shape.color)
+      else
+        self:_del_extmark("c" .. index)
+      end
+    end
+  end
 end
 
 function Renderer:draw_layout()

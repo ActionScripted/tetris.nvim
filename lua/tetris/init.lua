@@ -32,6 +32,9 @@ tetris.run = function(options)
   local events = Events:new()
   local input = Input:new()
 
+  ---"but in a game...a common trick", Lua docs
+  math.randomseed(os.time())
+
   renderer:setup(shapes)
   input:setup(renderer.buffer, options.mappings, events)
 
@@ -48,8 +51,7 @@ tetris.run = function(options)
   end)
 
   events:on("rotate", function()
-    local rotation = (tetris.current_rotation + 1) % 4
-    print("rotate", rotation)
+    current_rotation = current_rotation + 1
   end)
 
   events:on("pause", function()

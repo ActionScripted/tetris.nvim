@@ -5,6 +5,7 @@
 ---@field data string
 ---@field display string[]
 ---@field name string
+---@field size number
 
 ---@type TetrisShape[]
 local shapes = {
@@ -18,16 +19,18 @@ local shapes = {
       "        ",
     },
     name = "I",
+    size = 4,
   },
   {
     color = "yellow",
-    data = ".XX..XX.....",
+    data = "XXXX",
     display = {
       "  ████  ",
       "  ████  ",
       "        ",
     },
     name = "O",
+    size = 2,
   },
   {
     color = "blue",
@@ -38,6 +41,7 @@ local shapes = {
       "      ",
     },
     name = "J",
+    size = 3,
   },
   {
     color = "orange",
@@ -48,6 +52,7 @@ local shapes = {
       "      ",
     },
     name = "L",
+    size = 3,
   },
   {
     color = "purple",
@@ -58,6 +63,7 @@ local shapes = {
       "      ",
     },
     name = "T",
+    size = 3,
   },
   {
     color = "green",
@@ -68,6 +74,7 @@ local shapes = {
       "      ",
     },
     name = "S",
+    size = 3,
   },
   {
     color = "red",
@@ -78,6 +85,7 @@ local shapes = {
       "      ",
     },
     name = "Z",
+    size = 3,
   },
 }
 
