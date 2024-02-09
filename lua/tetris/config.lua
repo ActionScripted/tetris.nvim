@@ -2,6 +2,7 @@ local config = {}
 
 ---@class TetrisConstants
 config.constants = {
+  field_empty = ".",
   field_height = 22,
   field_width = 10,
   game_speed = 16, -- 60fps, gamers.

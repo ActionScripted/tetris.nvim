@@ -25,7 +25,7 @@ tetris.run = function(constants, options)
 
   ---Don't you DARE sort these, me.
   ---Don't you DARE sort these, me.
-  state:setup()
+  state:setup(constants)
   renderer:setup(config, shapes)
   events:setup(state, renderer)
   input:setup(renderer.buffer, options.mappings, events)
