@@ -1,7 +1,13 @@
-local EventHandler = {}
+---@class TetrisEvents
+---@field listeners table<string, function[]>
+---@field on fun(self, event: string, listener: function)
+---@field off fun(self, event: string, listener: function)
+---@field emit fun(self, event: string, ...)
+---@field setup fun(self, state: TetrisState, renderer: TetrisRenderer)
+local Events = {}
 
-function EventHandler:new()
-  local instance = setmetatable({}, EventHandler)
+function Events:new()
+  local instance = setmetatable({}, self)
   instance.listeners = {}
   self.__index = self
   return instance
@@ -9,7 +15,7 @@ end
 
 ---@param event string
 ---@param listener function
-function EventHandler:on(event, listener)
+function Events:on(event, listener)
   if not self.listeners[event] then
     self.listeners[event] = {}
   end
@@ -18,7 +24,7 @@ end
 
 ---@param event string
 ---@param listener function
-function EventHandler:off(event, listener)
+function Events:off(event, listener)
   if not self.listeners[event] then
     return
   end
@@ -32,7 +38,7 @@ end
 
 ---@param event string
 ---@param ... unknown
-function EventHandler:emit(event, ...)
+function Events:emit(event, ...)
   if self.listeners[event] then
     for _, listener in ipairs(self.listeners[event]) do
       listener(...)
@@ -40,4 +46,41 @@ function EventHandler:emit(event, ...)
   end
 end
 
-return EventHandler
+---@param state TetrisState
+---@param renderer TetrisRenderer
+function Events:setup(state, renderer)
+  self:on("left", function()
+    if not state.is_paused then
+      state.current_x = state.current_x - 1
+    end
+  end)
+
+  self:on("right", function()
+    if not state.is_paused then
+      state.current_x = state.current_x + 1
+    end
+  end)
+
+  self:on("drop", function()
+    if not state.is_paused then
+      print("drop")
+    end
+  end)
+
+  self:on("rotate", function()
+    if not state.is_paused then
+      state.current_rotation = state.current_rotation + 1
+    end
+  end)
+
+  self:on("pause", function()
+    state.is_paused = not state.is_paused
+  end)
+
+  self:on("quit", function()
+    state.is_quitting = true
+    renderer:close_window()
+  end)
+end
+
+return Events

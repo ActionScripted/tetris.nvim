@@ -1,3 +1,5 @@
+---@class TetrisInput
+---@field setup fun(self, buffer: number, mappings: table<string, string>, events: TetrisEvents)
 local Input = {}
 
 function Input:new()
@@ -8,6 +10,7 @@ end
 
 ---@param buffer number
 ---@param mappings table<string, string>
+---@param events TetrisEvents
 function Input:setup(buffer, mappings, events)
   for key, action in pairs(mappings) do
     if action == "noop" then

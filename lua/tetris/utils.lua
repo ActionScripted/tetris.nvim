@@ -53,23 +53,22 @@ to reflect the new positions of each piece.
 ---@return number
 utils.rotated_index = function(x, y, size, rotation)
   local r = rotation % 4
-  local index = 0
 
   if r == 0 then
     -- 0 rotation: (x, y) -> (x, y)
-    index = y * size + x
+    return y * size + x
   elseif r == 1 then
     -- 90 degrees clockwise: (x, y) -> (size - 1 - y, x)
-    index = (size - 1 - x) * size + y
+    return (size - 1 - x) * size + y
   elseif r == 2 then
     -- 180 degrees clockwise: (x, y) -> (size - 1 - x, size - 1 - y)
-    index = (size - 1 - y) * size + (size - 1 - x)
+    return (size - 1 - y) * size + (size - 1 - x)
   elseif r == 3 then
     -- 270 degrees clockwise: (x, y) -> (y, size - 1 - x)
-    index = x * size + (size - 1 - y)
+    return x * size + (size - 1 - y)
   end
 
-  return index
+  return -1
 end
 
 return utils

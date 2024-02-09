@@ -1,5 +1,28 @@
 local utils = require("tetris.utils")
 
+---@class TetrisRenderer
+---@field block string
+---@field buffer number
+---@field extmarks table<string, number>
+---@field guicursor string
+---@field layout string[]
+---@field namespace number
+---@field pos_cursor number[]
+---@field pos_field_end number[]
+---@field pos_field_start number[]
+---@field pos_level number[]
+---@field pos_next number[]
+---@field pos_score number[]
+---@field pos_top number[]
+---@field window number
+---@field close_window fun(self)
+---@field cursor_hide fun(self)
+---@field cursor_reset fun(self)
+---@field debug fun(self)
+---@field draw_layout fun(self)
+---@field draw_level fun(self, level: string)
+---@field draw_next fun(self, next_shape: TetrisShape)
+---@field draw_score fun(self, score: string)
 local Renderer = {}
 
 function Renderer:new()

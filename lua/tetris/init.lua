@@ -3,31 +3,19 @@ require("tetris.math")
 local Events = require("tetris.events")
 local Input = require("tetris.input")
 local Renderer = require("tetris.renderer")
+local State = require("tetris.state")
 local config = require("tetris.config")
 local shapes = require("tetris.shapes")
 
-local tetris = {
-  field_height = 22,
-  field_width = 10,
-  game_speed = 16, -- 60fps, gamers.
-  lock_delay = 500,
-  score_max = 99999999,
-  score_min = 0,
-}
+---@class Tetris
+---@field run fun(constants: TetrisConstants, options: TetrisOptions)
+---@field setup fun(opts: TetrisOptions)
+local tetris = {}
 
+---@param constants TetrisConstants
 ---@param options TetrisOptions
-tetris.run = function(options)
-  local current_rotation = 0
-  local current_shape = nil
-  local current_x = 0
-  local current_y = 0
-
-  local drop_speed = 48
-  local is_paused = false
-  local is_quitting = false
-  local score = 0
-  local tick_count = 0
-
+tetris.run = function(constants, options)
+  local state = State:new()
   local renderer = Renderer:new()
   local events = Events:new()
   local input = Input:new()
@@ -35,64 +23,43 @@ tetris.run = function(options)
   ---"but in a game...a common trick", Lua docs
   math.randomseed(os.time())
 
+  ---Don't you DARE sort these, me.
+  ---Don't you DARE sort these, me.
+  state:setup()
   renderer:setup(config, shapes)
+  events:setup(state, renderer)
   input:setup(renderer.buffer, options.mappings, events)
 
-  events:on("left", function()
-    current_x = current_x - 1
-  end)
-
-  events:on("right", function()
-    current_x = current_x + 1
-  end)
-
-  events:on("drop", function()
-    print("drop")
-  end)
-
-  events:on("rotate", function()
-    current_rotation = current_rotation + 1
-  end)
-
-  events:on("pause", function()
-    is_paused = not is_paused
-  end)
-
-  events:on("quit", function()
-    is_quitting = true
-    renderer:close_window()
-  end)
-
   local function tick()
-    if is_quitting then
+    if state.is_quitting then
       renderer:cursor_reset()
       return
     end
 
-    if not is_paused then
+    if not state.is_paused then
       local status, err = pcall(function()
-        tick_count = tick_count + 1
+        state.tick_count = state.tick_count + 1
 
-        if not current_shape then
-          current_shape = shapes[math.random(1, #shapes)]
+        if not state.current_shape then
+          state.current_shape = shapes[math.random(1, #shapes)]
         end
 
-        if tick_count % drop_speed == 0 then
-          current_y = current_y + 1
+        if state.tick_count % state.drop_speed == 0 then
+          state.current_y = state.current_y + 1
         end
 
-        score = math.clamp(score + 10, tetris.score_min, tetris.score_max)
+        state.score = math.clamp(state.score + 10, constants.score_min, constants.score_max)
         local next_shape = shapes[math.random(1, #shapes)]
 
         renderer:draw_layout()
         renderer:cursor_hide()
 
-        renderer:draw_shape(current_shape, current_x, current_y, current_rotation)
+        renderer:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
 
-        renderer:draw_level(tostring(score))
+        renderer:draw_level(tostring(state.score))
         renderer:draw_next(next_shape)
-        renderer:draw_score(tostring(score))
-        renderer:draw_top(tostring(score))
+        renderer:draw_score(tostring(state.score))
+        renderer:draw_top(tostring(state.score))
 
         if options.debug then
           renderer:debug()
@@ -106,18 +73,18 @@ tetris.run = function(options)
       end
     end
 
-    vim.defer_fn(tick, tetris.game_speed)
+    vim.defer_fn(tick, constants.game_speed)
   end
 
   tick()
 end
 
----@param options TetrisOptions
-tetris.setup = function(options)
-  config.setup(options)
+---@param opts TetrisOptions
+tetris.setup = function(opts)
+  config.setup(opts)
 
   vim.api.nvim_create_user_command("Tetris", function()
-    tetris.run(config.options)
+    tetris.run(config.constants, config.options)
   end, { nargs = 0 })
 end
 
