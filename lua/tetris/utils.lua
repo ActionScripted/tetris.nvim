@@ -10,6 +10,38 @@ utils.string_to_table = function(str)
   return lines
 end
 
+---@param constants TetrisConstants
+---@param state TetrisState
+---@param shape TetrisShape
+---@param x number
+---@param y number
+---@param rotation number
+utils.can_move = function(constants, state, shape, x, y, rotation)
+  for sy = 0, shape.size - 1 do
+    for sx = 0, shape.size - 1 do
+      local index = utils.rotated_index(sx, sy, shape.size, rotation)
+      local char = shape.data:sub(index + 1, index + 1)
+
+      if char == "X" then
+        if sx + x < 0 or sx + x >= constants.field_width then
+          return false
+        end
+
+        if sy + y >= constants.field_height - 2 then
+          return false
+        end
+
+        local field_index = (constants.field_width * (sy + y)) + sx + x
+        if state.field[field_index] ~= constants.field_empty then
+          return false
+        end
+      end
+    end
+  end
+
+  return true
+end
+
 --[[
 Get the rotated index of the shape piece.
 

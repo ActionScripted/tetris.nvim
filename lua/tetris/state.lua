@@ -4,6 +4,7 @@
 ---@field current_x number
 ---@field current_y number
 ---@field drop_speed number
+---@field field table
 ---@field is_paused boolean
 ---@field is_quitting boolean
 ---@field score number

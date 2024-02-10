@@ -149,8 +149,8 @@ end
 ---@param y number
 ---@param rotation number
 function Renderer:draw_shape(shape, x, y, rotation)
-  local x_trans = x + self.pos_field_start[1]
-  local y_trans = y + self.pos_field_start[2]
+  local field_x = x * 2 + self.pos_field_start[1]
+  local field_y = y + self.pos_field_start[2]
 
   for sy = 0, shape.size - 1 do
     for sx = 0, shape.size - 1 do
@@ -158,10 +158,15 @@ function Renderer:draw_shape(shape, x, y, rotation)
       local char = shape.data:sub(index + 1, index + 1)
 
       if char == "X" then
-        local out = self.block .. self.block
-        self:_set_extmark("c" .. index, y_trans + sy, (x_trans + sx) * 2, out, "TetrisShape-" .. shape.color)
+        self:_set_extmark(
+          "c" .. sy .. sx,
+          field_y + sy,
+          field_x + (sx * 2),
+          self.block .. self.block,
+          "TetrisShape-" .. shape.color
+        )
       else
-        self:_del_extmark("c" .. index)
+        self:_del_extmark("c" .. sy .. sx)
       end
     end
   end

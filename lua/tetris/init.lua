@@ -6,6 +6,7 @@ local Renderer = require("tetris.renderer")
 local State = require("tetris.state")
 local config = require("tetris.config")
 local shapes = require("tetris.shapes")
+local utils = require("tetris.utils")
 
 ---@class Tetris
 ---@field run fun(constants: TetrisConstants, options: TetrisOptions)
@@ -27,7 +28,7 @@ tetris.run = function(constants, options)
   ---Don't you DARE sort these, me.
   state:setup(constants)
   renderer:setup(config, shapes)
-  events:setup(state, renderer)
+  events:setup(constants, state, renderer)
   input:setup(renderer.buffer, options.mappings, events)
 
   local function tick()
@@ -45,7 +46,18 @@ tetris.run = function(constants, options)
         end
 
         if state.tick_count % state.drop_speed == 0 then
-          state.current_y = state.current_y + 1
+          if
+            utils.can_move(
+              constants,
+              state,
+              state.current_shape,
+              state.current_x,
+              state.current_y + 1,
+              state.current_rotation
+            )
+          then
+            state.current_y = state.current_y + 1
+          end
         end
 
         state.score = math.clamp(state.score + 10, constants.score_min, constants.score_max)
