@@ -88,7 +88,23 @@ function Events:setup(constants, state, renderer)
 
   self:on("drop", function()
     if not state.is_paused then
-      print("drop")
+      local can_move = true
+      while can_move do
+        if
+          not utils.can_move(
+            constants,
+            state,
+            state.current_shape,
+            state.current_x,
+            state.current_y + 1,
+            state.current_rotation
+          )
+        then
+          can_move = false
+        else
+          state.current_y = state.current_y + 1
+        end
+      end
     end
   end)
 
