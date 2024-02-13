@@ -23,6 +23,9 @@ local utils = require("tetris.utils")
 ---@field draw_level fun(self, level: string)
 ---@field draw_next fun(self, next_shape: TetrisShape)
 ---@field draw_score fun(self, score: string)
+---@field draw_shape fun(self, shape: TetrisShape, x: number, y: number, rotation: number)
+---@field draw_top fun(self, top: string)
+---@field setup fun(self, config: TetrisConfig, shapes: TetrisShape[])
 local Renderer = {}
 
 function Renderer:new()
@@ -196,6 +199,28 @@ function Renderer:draw_next(next_shape)
   local hl = "TetrisShape-" .. next_shape.color
   self:_set_extmark("next1", self.pos_next[1] - 1, self.pos_next[2], next_shape.display[1], hl)
   self:_set_extmark("next2", self.pos_next[1], self.pos_next[2], next_shape.display[2], hl)
+end
+
+---@param constants TetrisConstants
+---@param state TetrisState
+function Renderer:draw_field(constants, state)
+  for y = 0, constants.field_height - 1 do
+    for x = 0, constants.field_width - 1 do
+      local field_index = (constants.field_width * y) + x
+
+      if state.field[field_index] ~= constants.field_empty then
+        self:_set_extmark(
+          "field" .. x .. y,
+          y + self.pos_field_start[2],
+          x * 2 + self.pos_field_start[1],
+          self.block .. self.block,
+          "TetrisShape-" .. state.field[field_index]
+        )
+      else
+        self:_del_extmark("field" .. x .. y)
+      end
+    end
+  end
 end
 
 ---@param shapes TetrisShape[]

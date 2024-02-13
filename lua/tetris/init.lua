@@ -66,6 +66,7 @@ tetris.run = function(constants, options)
         renderer:draw_layout()
         renderer:cursor_hide()
 
+        renderer:draw_field(constants, state)
         renderer:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
 
         renderer:draw_level(tostring(state.score))

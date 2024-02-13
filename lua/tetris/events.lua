@@ -101,6 +101,18 @@ function Events:setup(constants, state, renderer)
           )
         then
           can_move = false
+          utils.add_to_field(
+            constants,
+            state,
+            state.current_shape,
+            state.current_x,
+            state.current_y,
+            state.current_rotation
+          )
+          state.current_shape = nil
+          state.current_x = 0
+          state.current_y = 0
+          state.current_rotation = 0
         else
           state.current_y = state.current_y + 1
         end

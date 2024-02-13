@@ -42,6 +42,19 @@ utils.can_move = function(constants, state, shape, x, y, rotation)
   return true
 end
 
+utils.add_to_field = function(constants, state, shape, x, y, rotation)
+  for sy = 0, shape.size - 1 do
+    for sx = 0, shape.size - 1 do
+      local index = utils.rotated_index(sx, sy, shape.size, rotation)
+      local char = shape.data:sub(index + 1, index + 1)
+      if char == "X" then
+        local field_index = (constants.field_width * (sy + y)) + sx + x
+        state.field[field_index] = shape.color
+      end
+    end
+  end
+end
+
 --[[
 Get the rotated index of the shape piece.
 

@@ -1,3 +1,4 @@
+---@class TetrisConfig
 local config = {}
 
 ---@class TetrisConstants
