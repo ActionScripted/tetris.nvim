@@ -1,6 +1,7 @@
 # TODO
 
 - [ ] docs: use kdheepak/panvimdoc or equivalent
+- [ ] feat(core): DRY-up all the events and init stuff, good golly
 - [ ] feat(core): add chaos mode ( piece swap mid-drop, broken UI, noclip, etc.)
 - [ ] feat(core): add options for classic and modern systems
 - [ ] feat(state): load game state from file

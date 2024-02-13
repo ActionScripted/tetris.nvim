@@ -47,7 +47,7 @@ tetris.run = function(constants, options)
 
         if state.tick_count % state.drop_speed == 0 then
           if
-            utils.can_move(
+            not utils.can_move(
               constants,
               state,
               state.current_shape,
@@ -56,6 +56,19 @@ tetris.run = function(constants, options)
               state.current_rotation
             )
           then
+            utils.add_to_field(
+              constants,
+              state,
+              state.current_shape,
+              state.current_x,
+              state.current_y,
+              state.current_rotation
+            )
+            state.current_rotation = 0
+            state.current_shape = shapes[math.random(1, #shapes)]
+            state.current_x = 0
+            state.current_y = 0
+          else
             state.current_y = state.current_y + 1
           end
         end
