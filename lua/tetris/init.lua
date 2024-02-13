@@ -46,6 +46,7 @@ tetris.run = function(constants, options)
         end
 
         if state.tick_count % state.drop_speed == 0 then
+          ---TODO: DRY-up this along with the events; consolidate...somewhere
           if
             not utils.can_move(
               constants,
