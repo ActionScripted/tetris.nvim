@@ -52,106 +52,69 @@ end
 ---@param state TetrisState
 ---@param renderer TetrisRenderer
 function Events:setup(constants, state, renderer)
-  self:on("left", function()
-    if not state.is_paused then
-      if
-        utils.can_move(
-          constants,
-          state,
-          state.current_shape,
-          state.current_x - 1,
-          state.current_y,
-          state.current_rotation
-        )
-      then
-        state.current_x = state.current_x - 1
-      end
+  --- TODO: reconsider this and where it lives
+  local function attempt_change(change)
+    if state.is_paused then
+      return false
     end
+
+    local dx, dy, dr = 0, 0, 0
+
+    if change == "left" then
+      dx = -1
+    elseif change == "right" then
+      dx = 1
+    elseif change == "down" then
+      dy = 1
+    elseif change == "rotate" then
+      dr = 1
+    end
+
+    if
+      utils.can_move(
+        constants,
+        state,
+        state.current_shape,
+        state.current_x + dx,
+        state.current_y + dy,
+        state.current_rotation + dr
+      )
+    then
+      state.current_x = state.current_x + dx
+      state.current_y = state.current_y + dy
+      state.current_rotation = state.current_rotation + dr
+      return true
+    end
+  end
+
+  self:on("left", function()
+    attempt_change("left")
   end)
 
   self:on("right", function()
-    if not state.is_paused then
-      if
-        utils.can_move(
-          constants,
-          state,
-          state.current_shape,
-          state.current_x + 1,
-          state.current_y,
-          state.current_rotation
-        )
-      then
-        state.current_x = state.current_x + 1
-      end
-    end
+    attempt_change("right")
   end)
 
   self:on("down", function()
-    if not state.is_paused then
-      if
-        utils.can_move(
-          constants,
-          state,
-          state.current_shape,
-          state.current_x,
-          state.current_y + 1,
-          state.current_rotation
-        )
-      then
-        state.current_y = state.current_y + 1
-      end
-    end
+    attempt_change("down")
   end)
 
   self:on("drop", function()
-    if not state.is_paused then
-      local can_move = true
-      while can_move do
-        if
-          not utils.can_move(
-            constants,
-            state,
-            state.current_shape,
-            state.current_x,
-            state.current_y + 1,
-            state.current_rotation
-          )
-        then
-          can_move = false
-          utils.add_to_field(
-            constants,
-            state,
-            state.current_shape,
-            state.current_x,
-            state.current_y,
-            state.current_rotation
-          )
-          state.current_shape = nil
-          state.current_x = 0
-          state.current_y = 0
-          state.current_rotation = 0
-        else
-          state.current_y = state.current_y + 1
-        end
-      end
+    local can_move = true
+    while can_move do
+      can_move = attempt_change("down")
     end
+
+    utils.add_to_field(constants, state, state.current_shape, state.current_x, state.current_y, state.current_rotation)
+
+    state.current_shape = nil
+    state.current_x = 0
+    state.current_y = 0
+    state.current_rotation = 0
   end)
 
   self:on("rotate", function()
-    if not state.is_paused then
-      if
-        utils.can_move(
-          constants,
-          state,
-          state.current_shape,
-          state.current_x,
-          state.current_y,
-          state.current_rotation + 1
-        )
-      then
-        state.current_rotation = state.current_rotation + 1
-      end
-    end
+    attempt_change("rotate")
   end)
 
   self:on("pause", function()
