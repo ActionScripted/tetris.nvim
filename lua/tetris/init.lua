@@ -29,17 +29,42 @@ tetris.run = function(constants, options)
   ---Don't you DARE sort these, me.
   state:setup(constants)
   renderer:setup(config, shapes)
-  input:setup(renderer.buffer, options.mappings, events)
+  input:map_actions(renderer.buffer, options.mappings, events)
 
   ---TODO: move up; apply patterns to other classes
   local controller = Controller:new({
     constants = constants,
-    events = events,
     renderer = renderer,
     state = state,
   })
 
-  events:setup(controller)
+  events:on("down", function()
+    controller:shape_move_down()
+  end)
+
+  events:on("drop", function()
+    controller:shape_drop()
+  end)
+
+  events:on("left", function()
+    controller:shape_move_left()
+  end)
+
+  events:on("pause", function()
+    controller:pause()
+  end)
+
+  events:on("quit", function()
+    controller:quit()
+  end)
+
+  events:on("right", function()
+    controller:shape_move_right()
+  end)
+
+  events:on("rotate", function()
+    controller:shape_rotate()
+  end)
 
   local function tick()
     if state.is_quitting then
@@ -67,18 +92,8 @@ tetris.run = function(constants, options)
               state.current_rotation
             )
           then
-            utils.add_to_field(
-              constants,
-              state,
-              state.current_shape,
-              state.current_x,
-              state.current_y,
-              state.current_rotation
-            )
-            state.current_rotation = 0
+            controller:shape_lock()
             state.current_shape = shapes[math.random(1, #shapes)]
-            state.current_x = 0
-            state.current_y = 0
           else
             state.current_y = state.current_y + 1
           end

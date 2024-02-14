@@ -1,17 +1,16 @@
----@class TetrisInput
----@field setup fun(self, buffer: number, mappings: table<string, string>, events: TetrisEvents)
 local Input = {}
+Input.__index = Input
 
-function Input:new()
-  local instance = setmetatable({}, Input)
-  self.__index = self
-  return instance
+---@class TetrisInput
+function Input:new(opts)
+  opts = opts or {}
+  return setmetatable(opts or {}, Input)
 end
 
 ---@param buffer number
 ---@param mappings table<string, string>
 ---@param events TetrisEvents
-function Input:setup(buffer, mappings, events)
+function Input:map_actions(buffer, mappings, events)
   for key, action in pairs(mappings) do
     if action == "noop" then
       vim.api.nvim_buf_set_keymap(buffer, "n", key, "<Nop>", { noremap = true, silent = true })

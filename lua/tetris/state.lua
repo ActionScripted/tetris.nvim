@@ -1,3 +1,6 @@
+local State = {}
+State.__index = State
+
 ---@class TetrisState
 ---@field current_rotation number
 ---@field current_shape TetrisShape
@@ -11,13 +14,19 @@
 ---@field tick_count number
 ---@field setup fun(self)
 ---@field load fun(self)
-
-local State = {}
-
 function State:new()
-  local instance = setmetatable({}, State)
-  self.__index = self
-  return instance
+  return setmetatable({
+    current_rotation = 0,
+    current_shape = nil,
+    current_x = 0,
+    current_y = 0,
+    drop_speed = 48,
+    field = {},
+    is_paused = false,
+    is_quitting = false,
+    score = 0,
+    tick_count = 0,
+  }, self)
 end
 
 ---TODO: Load saved state from file.
@@ -32,29 +41,12 @@ end
 
 ---@param constants TetrisConstants
 function State:setup(constants)
-  self:reset()
-
-  --- TODO: wat
-  self.drop_speed = 48
-  self.field = {}
-
   --- TODO: move to Field class
   for r = 0, constants.field_height - 1 do
     for c = 0, constants.field_width - 1 do
       self.field[r * constants.field_width + c] = constants.field_empty
     end
   end
-end
-
-function State:reset()
-  self.current_rotation = 0
-  self.current_shape = nil
-  self.current_x = 0
-  self.current_y = 0
-  self.is_paused = false
-  self.is_quitting = false
-  self.score = 0
-  self.tick_count = 0
 end
 
 return State
