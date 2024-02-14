@@ -32,22 +32,29 @@ end
 
 ---@param constants TetrisConstants
 function State:setup(constants)
-  self.current_rotation = 0
-  self.current_shape = nil
-  self.current_x = 0
-  self.current_y = 0
+  self:reset()
+
+  --- TODO: wat
   self.drop_speed = 48
   self.field = {}
-  self.is_paused = false
-  self.is_quitting = false
-  self.score = 0
-  self.tick_count = 0
 
+  --- TODO: move to Field class
   for r = 0, constants.field_height - 1 do
     for c = 0, constants.field_width - 1 do
       self.field[r * constants.field_width + c] = constants.field_empty
     end
   end
+end
+
+function State:reset()
+  self.current_rotation = 0
+  self.current_shape = nil
+  self.current_x = 0
+  self.current_y = 0
+  self.is_paused = false
+  self.is_quitting = false
+  self.score = 0
+  self.tick_count = 0
 end
 
 return State

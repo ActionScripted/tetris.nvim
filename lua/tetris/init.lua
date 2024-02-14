@@ -1,5 +1,6 @@
 require("tetris.math")
 
+local Controller = require("tetris.controller")
 local Events = require("tetris.events")
 local Input = require("tetris.input")
 local Renderer = require("tetris.renderer")
@@ -28,8 +29,17 @@ tetris.run = function(constants, options)
   ---Don't you DARE sort these, me.
   state:setup(constants)
   renderer:setup(config, shapes)
-  events:setup(constants, state, renderer)
   input:setup(renderer.buffer, options.mappings, events)
+
+  ---TODO: move up; apply patterns to other classes
+  local controller = Controller:new({
+    constants = constants,
+    events = events,
+    renderer = renderer,
+    state = state,
+  })
+
+  events:setup(controller)
 
   local function tick()
     if state.is_quitting then

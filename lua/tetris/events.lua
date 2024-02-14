@@ -5,7 +5,7 @@ local utils = require("tetris.utils")
 ---@field on fun(self, event: string, listener: function)
 ---@field off fun(self, event: string, listener: function)
 ---@field emit fun(self, event: string, ...)
----@field setup fun(self, constant: TetrisConstants, state: TetrisState, renderer: TetrisRenderer)
+---@field setup fun(self, controller: TetrisController)
 local Events = {}
 
 function Events:new()
@@ -48,13 +48,14 @@ function Events:emit(event, ...)
   end
 end
 
+---@param controller TetrisController
 ---@param constants TetrisConstants
 ---@param state TetrisState
 ---@param renderer TetrisRenderer
-function Events:setup(constants, state, renderer)
+function Events:setup(controller)
   --- TODO: reconsider this and where it lives
   local function attempt_change(change)
-    if state.is_paused then
+    if controller.state.is_paused then
       return false
     end
 
@@ -72,17 +73,17 @@ function Events:setup(constants, state, renderer)
 
     if
       utils.can_move(
-        constants,
-        state,
-        state.current_shape,
-        state.current_x + dx,
-        state.current_y + dy,
-        state.current_rotation + dr
+        controller.constants,
+        controller.state,
+        controller.state.current_shape,
+        controller.state.current_x + dx,
+        controller.state.current_y + dy,
+        controller.state.current_rotation + dr
       )
     then
-      state.current_x = state.current_x + dx
-      state.current_y = state.current_y + dy
-      state.current_rotation = state.current_rotation + dr
+      controller.state.current_x = controller.state.current_x + dx
+      controller.state.current_y = controller.state.current_y + dy
+      controller.state.current_rotation = controller.state.current_rotation + dr
       return true
     end
   end
@@ -105,12 +106,19 @@ function Events:setup(constants, state, renderer)
       can_move = attempt_change("down")
     end
 
-    utils.add_to_field(constants, state, state.current_shape, state.current_x, state.current_y, state.current_rotation)
+    utils.add_to_field(
+      controller.constants,
+      controller.state,
+      controller.state.current_shape,
+      controller.state.current_x,
+      controller.state.current_y,
+      controller.state.current_rotation
+    )
 
-    state.current_shape = nil
-    state.current_x = 0
-    state.current_y = 0
-    state.current_rotation = 0
+    controller.state.current_shape = nil
+    controller.state.current_x = 0
+    controller.state.current_y = 0
+    controller.state.current_rotation = 0
   end)
 
   self:on("rotate", function()
@@ -118,12 +126,11 @@ function Events:setup(constants, state, renderer)
   end)
 
   self:on("pause", function()
-    state.is_paused = not state.is_paused
+    controller:pause()
   end)
 
   self:on("quit", function()
-    state.is_quitting = true
-    renderer:close_window()
+    controller:quit()
   end)
 end
 

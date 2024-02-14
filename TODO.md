@@ -1,15 +1,18 @@
 # TODO
 
+- [ ] chore:(core): new() versus setup() for proper Lua. why not new() with args?
 - [ ] docs: use kdheepak/panvimdoc or equivalent
 - [ ] feat(core): DRY-up all the events and init stuff, good golly
-- [ ] feat(core): add chaos mode ( piece swap mid-drop, broken UI, noclip, etc.)
+- [ ] feat(core): add chaos mode (piece swap mid-drop, broken UI, noclip, etc.)
 - [ ] feat(core): add options for classic and modern systems
 - [ ] feat(state): load game state from file
 - [ ] feat(state): save game state to file
 - [ ] feat(ui): add game over screen
 - [ ] feat(ui): add pause screen
 - [ ] feat(ui): add start screen
-- [ ] perf(core): decouple game (loop) tick from level/speed
+- [ ] feat(ui): add theme support
+- [ ] feat(ui): add title screen (maybe not, nice to just start)
+- [ ] feat(ui): draw next from data not display and remove display props
 - [ ] perf(core): double buffer for rendering
 - [ ] perf(renderer): verify extmark use and cleanup in draw_shape
 - [ ] test(core): add tests
@@ -24,6 +27,7 @@
 - [x] feat(ui): add score info
 - [x] feat(ui): hide cursor/input/block
 - [x] feat(ui): namespace for highlights
+- [x] perf(core): decouple game (loop) tick from level/speed
 - [x] perf(core): should we try virtual text?
 - [x] perf(ui): are we creating thousands of extmarks?
 
