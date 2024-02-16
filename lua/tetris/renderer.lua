@@ -25,7 +25,7 @@ local utils = require("tetris.utils")
 ---@field draw_score fun(self, score: string)
 ---@field draw_shape fun(self, shape: TetrisShape, x: number, y: number, rotation: number)
 ---@field draw_top fun(self, top: string)
----@field setup fun(self, config: TetrisConfig, shapes: TetrisShape[])
+---@field setup fun(self, options: TetrisOptions, shapes: TetrisShape[])
 local Renderer = {}
 
 function Renderer:new()
@@ -147,6 +147,49 @@ function Renderer:debug()
   self:_set_extmark("extmarks", 1, 3, tostring(#extmarks) .. "(" .. extmarks_debug .. ")", "TetrisShape-red")
 end
 
+---@param constants TetrisConstants
+---@param state TetrisState
+function Renderer:draw_field(constants, state)
+  for y = 0, constants.field_height - 1 do
+    for x = 0, constants.field_width - 1 do
+      local field_index = (constants.field_width * y) + x
+
+      if state.field[field_index] ~= constants.field_empty then
+        self:_set_extmark(
+          "field" .. x .. y,
+          y + self.pos_field_start[2],
+          x * 2 + self.pos_field_start[1],
+          self.block .. self.block,
+          "TetrisShape-" .. state.field[field_index]
+        )
+      else
+        self:_del_extmark("field" .. x .. y)
+      end
+    end
+  end
+end
+
+function Renderer:draw_layout()
+  vim.api.nvim_buf_set_lines(self.buffer, 0, -1, false, self.layout)
+end
+
+---@param level string
+function Renderer:draw_level(level)
+  self:_set_extmark("level", self.pos_level[1] - 1, self.pos_level[2], level, "TetrisLevel")
+end
+
+---@param next_shape TetrisShape
+function Renderer:draw_next(next_shape)
+  local hl = "TetrisShape-" .. next_shape.color
+  self:_set_extmark("next1", self.pos_next[1] - 1, self.pos_next[2], next_shape.display[1], hl)
+  self:_set_extmark("next2", self.pos_next[1], self.pos_next[2], next_shape.display[2], hl)
+end
+
+---@param score string
+function Renderer:draw_score(score)
+  self:_set_extmark("score", self.pos_score[1] - 1, self.pos_score[2], score, "TetrisScore")
+end
+
 ---@param shape TetrisShape
 ---@param x number
 ---@param y number
@@ -175,60 +218,18 @@ function Renderer:draw_shape(shape, x, y, rotation)
   end
 end
 
-function Renderer:draw_layout()
-  vim.api.nvim_buf_set_lines(self.buffer, 0, -1, false, self.layout)
-end
-
----@param level string
-function Renderer:draw_level(level)
-  self:_set_extmark("level", self.pos_level[1] - 1, self.pos_level[2], level, "TetrisLevel")
-end
-
----@param score string
-function Renderer:draw_score(score)
-  self:_set_extmark("score", self.pos_score[1] - 1, self.pos_score[2], score, "TetrisScore")
-end
-
 ---@param top string
 function Renderer:draw_top(top)
   self:_set_extmark("top", self.pos_top[1] - 1, self.pos_top[2], top, "TetrisTop")
 end
 
----@param next_shape TetrisShape
-function Renderer:draw_next(next_shape)
-  local hl = "TetrisShape-" .. next_shape.color
-  self:_set_extmark("next1", self.pos_next[1] - 1, self.pos_next[2], next_shape.display[1], hl)
-  self:_set_extmark("next2", self.pos_next[1], self.pos_next[2], next_shape.display[2], hl)
-end
-
----@param constants TetrisConstants
----@param state TetrisState
-function Renderer:draw_field(constants, state)
-  for y = 0, constants.field_height - 1 do
-    for x = 0, constants.field_width - 1 do
-      local field_index = (constants.field_width * y) + x
-
-      if state.field[field_index] ~= constants.field_empty then
-        self:_set_extmark(
-          "field" .. x .. y,
-          y + self.pos_field_start[2],
-          x * 2 + self.pos_field_start[1],
-          self.block .. self.block,
-          "TetrisShape-" .. state.field[field_index]
-        )
-      else
-        self:_del_extmark("field" .. x .. y)
-      end
-    end
-  end
-end
-
+---@param options TetrisOptions
 ---@param shapes TetrisShape[]
-function Renderer:setup(config, shapes)
+function Renderer:setup(options, shapes)
   local height = #self.layout
   local width = vim.fn.strdisplaywidth(self.layout[1])
 
-  self.block = config.options.block
+  self.block = options.block
 
   self.buffer = vim.api.nvim_create_buf(false, true)
   self.namespace = vim.api.nvim_create_namespace("tetris")

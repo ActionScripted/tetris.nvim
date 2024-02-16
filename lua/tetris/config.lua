@@ -1,7 +1,5 @@
----@class TetrisConfig
----@field constants TetrisConstants
----@field options TetrisOptions
-local config = {}
+local Config = {}
+Config.__index = Config
 
 ---@class TetrisConstants
 ---@field field_empty string
@@ -11,7 +9,7 @@ local config = {}
 ---@field lock_delay number
 ---@field score_max number
 ---@field score_min number
-config.constants = {
+Config.constants = {
   field_empty = ".",
   field_height = 22,
   field_width = 10,
@@ -22,14 +20,10 @@ config.constants = {
 }
 
 ---@class TetrisOptions
----
----NOTE: If you change these, update the README!
----NOTE: If you change these, update the README!
----
 ---@field block string
 ---@field debug boolean
 ---@field mappings table<string, string>
-local options = {
+Config.defaults = {
   block = "█",
   debug = false,
   mappings = {
@@ -52,9 +46,14 @@ local options = {
   },
 }
 
----@param opts TetrisOptions
-function config.setup(opts)
-  config.options = vim.tbl_deep_extend("force", {}, options, opts or {})
+---@class TetrisConfig
+---@field constants TetrisConstants
+---@field options TetrisOptions
+function Config:new(opts)
+  opts = opts or {}
+  return setmetatable({
+    options = vim.tbl_deep_extend("force", {}, Config.defaults, opts),
+  }, self)
 end
 
-return config
+return Config
