@@ -98,7 +98,6 @@ tetris.run = function(config)
           end
         end
 
-        state.score = math.clamp(state.score + 10, config.constants.score_min, config.constants.score_max)
         local next_shape = shapes[math.random(1, #shapes)]
 
         renderer:draw_layout()
@@ -107,10 +106,10 @@ tetris.run = function(config)
         renderer:draw_field(config.constants, state)
         renderer:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
 
-        renderer:draw_level(tostring(state.score))
+        renderer:draw_level("0")
         renderer:draw_next(next_shape)
         renderer:draw_score(tostring(state.score))
-        renderer:draw_top(tostring(state.score))
+        renderer:draw_top("0")
 
         if config.options.debug then
           renderer:debug()

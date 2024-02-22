@@ -70,6 +70,8 @@ function Controller:shape_lock()
 
     if is_line then
       table.insert(lines, field_y)
+      ---TODO: move this
+      self.state.score = math.clamp(self.state.score + 100, self.constants.score_min, self.constants.score_max)
     end
   end
 
