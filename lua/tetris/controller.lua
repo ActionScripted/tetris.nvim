@@ -52,6 +52,38 @@ function Controller:shape_lock()
     self.state.current_rotation
   )
 
+  ---TODO: move this
+  local shape = self.state.current_shape
+  local lines = {}
+  for sy = 0, shape.size - 1 do
+    local field_y = sy + self.state.current_y
+
+    local is_line = true
+    for field_x = 0, self.constants.field_width - 1 do
+      local field_index = self.constants.field_width * field_y + field_x
+
+      if self.state.field[field_index] == self.constants.field_empty then
+        is_line = false
+        break
+      end
+    end
+
+    if is_line then
+      table.insert(lines, field_y)
+    end
+  end
+
+  --move lines down
+  for _, line in ipairs(lines) do
+    for y = line, 1, -1 do
+      for x = 0, self.constants.field_width - 1 do
+        local field_index = self.constants.field_width * y + x
+        local above_field_index = self.constants.field_width * (y - 1) + x
+        self.state.field[field_index] = self.state.field[above_field_index]
+      end
+    end
+  end
+
   self.state.current_shape = nil
   self.state.current_x = 0
   self.state.current_y = 0
