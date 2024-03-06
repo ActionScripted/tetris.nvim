@@ -18,7 +18,7 @@ local tetris = {}
 tetris.run = function(config)
   local events = Events:new()
   local input = Input:new()
-  local renderer = Renderer:new()
+  local renderer = Renderer:new(config.options, shapes)
   local state = State:new()
 
   ---"but in a game...a common trick", Lua docs
@@ -27,7 +27,6 @@ tetris.run = function(config)
   ---Don't you DARE sort these, me.
   ---Don't you DARE sort these, me.
   state:setup(config.constants)
-  renderer:setup(config.options, shapes)
   input:map_actions(renderer.buffer, config.options.mappings, events)
 
   ---TODO: move up; apply patterns to other classes
@@ -37,34 +36,17 @@ tetris.run = function(config)
     state = state,
   })
 
-  events:on("down", function()
-    controller:shape_move_down()
-  end)
+  -- stylua: ignore start
+  events:on("down",   function() controller:shape_move_down()  end)
+  events:on("drop",   function() controller:shape_drop()       end)
+  events:on("left",   function() controller:shape_move_left()  end)
+  events:on("pause",  function() controller:pause()            end)
+  events:on("quit",   function() controller:quit()             end)
+  events:on("right",  function() controller:shape_move_right() end)
+  events:on("rotate", function() controller:shape_rotate()     end)
+  -- stylua: ignore end
 
-  events:on("drop", function()
-    controller:shape_drop()
-  end)
-
-  events:on("left", function()
-    controller:shape_move_left()
-  end)
-
-  events:on("pause", function()
-    controller:pause()
-  end)
-
-  events:on("quit", function()
-    controller:quit()
-  end)
-
-  events:on("right", function()
-    controller:shape_move_right()
-  end)
-
-  events:on("rotate", function()
-    controller:shape_rotate()
-  end)
-
+  --- TODO: move to controller
   local function tick()
     if state.is_quitting then
       renderer:cursor_reset()

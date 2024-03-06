@@ -4,7 +4,7 @@ Input.__index = Input
 ---@class TetrisInput
 function Input:new(opts)
   opts = opts or {}
-  return setmetatable(opts, Input)
+  return setmetatable(opts, self)
 end
 
 ---@param buffer number

@@ -1,44 +1,9 @@
 local utils = require("tetris.utils")
 
----@class TetrisRenderer
----@field block string
----@field buffer number
----@field extmarks table<string, number>
----@field guicursor string
----@field layout string[]
----@field namespace number
----@field pos_cursor number[]
----@field pos_field_end number[]
----@field pos_field_start number[]
----@field pos_level number[]
----@field pos_next number[]
----@field pos_score number[]
----@field pos_top number[]
----@field window number
----@field close_window fun(self)
----@field cursor_hide fun(self)
----@field cursor_reset fun(self)
----@field debug fun(self)
----@field draw_layout fun(self)
----@field draw_level fun(self, level: string)
----@field draw_next fun(self, next_shape: TetrisShape)
----@field draw_score fun(self, score: string)
----@field draw_shape fun(self, shape: TetrisShape, x: number, y: number, rotation: number)
----@field draw_top fun(self, top: string)
----@field setup fun(self, options: TetrisOptions, shapes: TetrisShape[])
 local Renderer = {}
+Renderer.__index = Renderer
 
-function Renderer:new()
-  local instance = setmetatable({}, Renderer)
-
-  instance.block = "X"
-  instance.buffer = nil
-  instance.extmarks = {}
-  instance.guicursor = vim.o.guicursor
-  instance.namespace = nil
-  instance.window = nil
-
-  instance.layout = utils.string_to_table([[
+Renderer.layout = utils.string_to_table([[
 ╭───────────────────────────────────╮
 │ ▓ ▒ ░      TETRIS.NVIM      ░ ▒ ▓ │
 ├────────────────────┬──────────────┤
@@ -65,16 +30,79 @@ function Renderer:new()
 ╰────────────────────┴──────────────╯
 ]])
 
-  instance.pos_cursor = { 2, 4 }
-  instance.pos_field_end = { 22, 22 }
-  instance.pos_field_start = { 3, 3 }
-  instance.pos_level = { 11, 27 }
-  instance.pos_next = { 16, 31 }
-  instance.pos_score = { 8, 27 }
-  instance.pos_top = { 5, 27 }
+Renderer.pos_cursor = { 2, 4 }
+Renderer.pos_field_end = { 22, 22 }
+Renderer.pos_field_start = { 3, 3 }
+Renderer.pos_level = { 11, 27 }
+Renderer.pos_next = { 16, 31 }
+Renderer.pos_score = { 8, 27 }
+Renderer.pos_top = { 5, 27 }
 
-  self.__index = self
-  return instance
+---@class TetrisRenderer
+---@field block string
+---@field buffer number
+---@field extmarks table<string, number>
+---@field guicursor string
+---@field layout string[]
+---@field namespace number
+---@field pos_cursor number[]
+---@field pos_field_end number[]
+---@field pos_field_start number[]
+---@field pos_level number[]
+---@field pos_next number[]
+---@field pos_score number[]
+---@field pos_top number[]
+---@field window number
+---
+---@field _del_extmark fun(self, name: string)
+---@field _set_extmark fun(self, name: string, row: number, col: number, text: string, style: string)
+---@field close_window fun(self)
+---@field cursor_hide fun(self)
+---@field cursor_reset fun(self)
+---@field debug fun(self)
+---@field draw_field fun(self, constants: TetrisConstants, state: TetrisState)
+---@field draw_layout fun(self)
+---@field draw_level fun(self, level: string)
+---@field draw_next fun(self, next_shape: TetrisShape)
+---@field draw_score fun(self, score: string)
+---@field draw_shape fun(self, shape: TetrisShape, x: number, y: number, rotation: number)
+---@field draw_top fun(self, top: string)
+---@field new fun(options: table, shapes: table): TetrisRenderer
+---@field setup fun(self, options: TetrisOptions, shapes: TetrisShape[])
+---
+---@param options TetrisOptions
+---@param shapes TetrisShape[]
+function Renderer:new(options, shapes)
+  local self = setmetatable({}, Renderer)
+
+  local win_height = #self.layout
+  local win_width = vim.fn.strdisplaywidth(self.layout[1])
+
+  self.block = options.block
+  self.buffer = vim.api.nvim_create_buf(false, true)
+  self.extmarks = {}
+  self.guicursor = vim.o.guicursor
+  self.namespace = vim.api.nvim_create_namespace("tetris")
+  self.window = vim.api.nvim_open_win(self.buffer, true, {
+    col = math.floor((vim.o.columns - win_width) / 2),
+    height = win_height,
+    relative = "editor",
+    row = math.floor(((vim.o.lines - win_height) / 2) - 1),
+    style = "minimal",
+    width = win_width,
+  })
+
+  vim.api.nvim_win_set_hl_ns(self.window, self.namespace)
+
+  vim.api.nvim_set_hl(self.namespace, "TetrisLevel", { fg = "white", bold = true })
+  vim.api.nvim_set_hl(self.namespace, "TetrisScore", { fg = "white", bold = true })
+  vim.api.nvim_set_hl(self.namespace, "TetrisTop", { fg = "white", bold = true })
+
+  for _, shape in ipairs(shapes) do
+    vim.api.nvim_set_hl(self.namespace, "TetrisShape-" .. shape.color, { fg = shape.color })
+  end
+
+  return self
 end
 
 ---@param name string
@@ -221,36 +249,6 @@ end
 ---@param top string
 function Renderer:draw_top(top)
   self:_set_extmark("top", self.pos_top[1] - 1, self.pos_top[2], top, "TetrisTop")
-end
-
----@param options TetrisOptions
----@param shapes TetrisShape[]
-function Renderer:setup(options, shapes)
-  local height = #self.layout
-  local width = vim.fn.strdisplaywidth(self.layout[1])
-
-  self.block = options.block
-
-  self.buffer = vim.api.nvim_create_buf(false, true)
-  self.namespace = vim.api.nvim_create_namespace("tetris")
-  self.window = vim.api.nvim_open_win(self.buffer, true, {
-    col = math.floor((vim.o.columns - width) / 2),
-    height = height,
-    relative = "editor",
-    row = math.floor(((vim.o.lines - height) / 2) - 1),
-    style = "minimal",
-    width = width,
-  })
-
-  vim.api.nvim_win_set_hl_ns(self.window, self.namespace)
-
-  vim.api.nvim_set_hl(self.namespace, "TetrisLevel", { fg = "white", bold = true })
-  vim.api.nvim_set_hl(self.namespace, "TetrisScore", { fg = "white", bold = true })
-  vim.api.nvim_set_hl(self.namespace, "TetrisTop", { fg = "white", bold = true })
-
-  for _, shape in ipairs(shapes) do
-    vim.api.nvim_set_hl(self.namespace, "TetrisShape-" .. shape.color, { fg = shape.color })
-  end
 end
 
 return Renderer

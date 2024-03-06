@@ -5,6 +5,7 @@
 - [ ] feat(core): DRY-up all the events and init stuff, good golly
 - [ ] feat(core): add chaos mode (piece swap mid-drop, broken UI, noclip, etc.)
 - [ ] feat(core): add options for classic and modern systems
+- [ ] feat(core): stats for moves, pieces played, etc.
 - [ ] feat(state): load game state from file
 - [ ] feat(state): save game state to file
 - [ ] feat(ui): add game over screen

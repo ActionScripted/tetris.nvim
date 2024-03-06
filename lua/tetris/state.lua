@@ -42,6 +42,7 @@ end
 ---@param constants TetrisConstants
 function State:setup(constants)
   --- TODO: move to Field class
+  --- TODO: ...or move that stuff here?! Field, shapes, etc.
   for r = 0, constants.field_height - 1 do
     for c = 0, constants.field_width - 1 do
       self.field[r * constants.field_width + c] = constants.field_empty
