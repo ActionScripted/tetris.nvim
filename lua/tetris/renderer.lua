@@ -175,6 +175,25 @@ function Renderer:debug()
   self:_set_extmark("extmarks", 1, 3, tostring(#extmarks) .. "(" .. extmarks_debug .. ")", "TetrisShape-red")
 end
 
+---@param config TetrisConfig
+---@param state TetrisState
+function Renderer:draw(config, state, next_shape)
+  self:draw_layout()
+  self:cursor_hide()
+
+  self:draw_field(config.constants, state)
+  self:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
+
+  self:draw_level("0")
+  self:draw_next(next_shape)
+  self:draw_score(tostring(state.score))
+  self:draw_top("0")
+
+  if config.options.debug then
+    self:debug()
+  end
+end
+
 ---@param constants TetrisConstants
 ---@param state TetrisState
 function Renderer:draw_field(constants, state)

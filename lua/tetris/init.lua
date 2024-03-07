@@ -81,21 +81,7 @@ tetris.run = function(config)
         end
 
         local next_shape = shapes[math.random(1, #shapes)]
-
-        renderer:draw_layout()
-        renderer:cursor_hide()
-
-        renderer:draw_field(config.constants, state)
-        renderer:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
-
-        renderer:draw_level("0")
-        renderer:draw_next(next_shape)
-        renderer:draw_score(tostring(state.score))
-        renderer:draw_top("0")
-
-        if config.options.debug then
-          renderer:debug()
-        end
+        renderer:draw(config, state, next_shape)
       end)
 
       if not status then
