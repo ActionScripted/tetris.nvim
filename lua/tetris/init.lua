@@ -19,14 +19,13 @@ tetris.run = function(config)
   local events = Events:new()
   local input = Input:new()
   local renderer = Renderer:new(config.options, shapes)
-  local state = State:new()
+  local state = State:new(config.constants)
 
   ---"but in a game...a common trick", Lua docs
   math.randomseed(os.time())
 
   ---Don't you DARE sort these, me.
   ---Don't you DARE sort these, me.
-  state:setup(config.constants)
   input:map_actions(renderer.buffer, config.options.mappings, events)
 
   ---TODO: move up; apply patterns to other classes
@@ -37,13 +36,14 @@ tetris.run = function(config)
   })
 
   -- stylua: ignore start
-  events:on("down",   function() controller:shape_move_down()  end)
-  events:on("drop",   function() controller:shape_drop()       end)
-  events:on("left",   function() controller:shape_move_left()  end)
-  events:on("pause",  function() controller:pause()            end)
-  events:on("quit",   function() controller:quit()             end)
-  events:on("right",  function() controller:shape_move_right() end)
-  events:on("rotate", function() controller:shape_rotate()     end)
+  events:on("down",    function() controller:shape_move_down()  end)
+  events:on("drop",    function() controller:shape_drop()       end)
+  events:on("left",    function() controller:shape_move_left()  end)
+  events:on("pause",   function() controller:pause()            end)
+  events:on("quit",    function() controller:quit()             end)
+  events:on("restart", function() controller:restart()          end)
+  events:on("right",   function() controller:shape_move_right() end)
+  events:on("rotate",  function() controller:shape_rotate()     end)
   -- stylua: ignore end
 
   --- TODO: move to controller
@@ -53,45 +53,47 @@ tetris.run = function(config)
       return
     end
 
-    if not state.is_paused then
-      local status, err = pcall(function()
+    ---Scheduled up front so one bad frame can't take the loop down with it.
+    vim.defer_fn(tick, config.constants.game_speed)
+
+    local ok, err = pcall(function()
+      if not state.is_paused and not state.is_game_over then
         state.tick_count = state.tick_count + 1
 
         if not state.current_shape then
-          state.current_shape = shapes[math.random(1, #shapes)]
+          state.current_shape = state.next_shape or utils.random_shape(shapes)
+          state.next_shape = utils.random_shape(shapes)
+
+          state.current_rotation = 0
+          state.current_x = math.floor((config.constants.field_width - state.current_shape.size) / 2)
+          state.current_y = 0
+
+          ---Nowhere to put the new shape? That's the game.
+          state.is_game_over = not utils.can_move(
+            config.constants,
+            state,
+            state.current_shape,
+            state.current_x,
+            state.current_y,
+            state.current_rotation
+          )
         end
 
-        if state.tick_count % state.drop_speed == 0 then
-          ---TODO: DRY-up this along with the events; consolidate...somewhere
-          if
-            not utils.can_move(
-              config.constants,
-              state,
-              state.current_shape,
-              state.current_x,
-              state.current_y + 1,
-              state.current_rotation
-            )
-          then
+        if not state.is_game_over and state.tick_count % state.drop_speed == 0 then
+          if not controller:attempt_change("down") then
             controller:shape_lock()
-            state.current_shape = shapes[math.random(1, #shapes)]
-          else
-            state.current_y = state.current_y + 1
           end
         end
-
-        local next_shape = shapes[math.random(1, #shapes)]
-        renderer:draw(config, state, next_shape)
-      end)
-
-      if not status then
-        vim.notify("Error in game loop: " .. err, vim.log.levels.ERROR)
-        renderer:cursor_reset()
-        return
       end
-    end
 
-    vim.defer_fn(tick, config.constants.game_speed)
+      renderer:draw(config, state)
+    end)
+
+    if not ok then
+      vim.notify("Error in game loop: " .. err, vim.log.levels.ERROR)
+      state.is_quitting = true
+      renderer:cursor_reset()
+    end
   end
 
   tick()

@@ -25,7 +25,7 @@ Renderer.layout = utils.string_to_table([[
 │                    │ ╰──────────╯ │
 │                    │              │
 │                    │              │
-│                    │              │
+│                    ├──────────────┤
 │                    │              │
 ╰────────────────────┴──────────────╯
 ]])
@@ -36,6 +36,7 @@ Renderer.pos_field_start = { 3, 3 }
 Renderer.pos_level = { 11, 27 }
 Renderer.pos_next = { 16, 31 }
 Renderer.pos_score = { 8, 27 }
+Renderer.pos_status = { 22, 27 }
 Renderer.pos_top = { 5, 27 }
 
 ---@class TetrisRenderer
@@ -51,24 +52,27 @@ Renderer.pos_top = { 5, 27 }
 ---@field pos_level number[]
 ---@field pos_next number[]
 ---@field pos_score number[]
+---@field pos_status number[]
 ---@field pos_top number[]
 ---@field window number
 ---
 ---@field _del_extmark fun(self, name: string)
 ---@field _set_extmark fun(self, name: string, row: number, col: number, text: string, style: string)
+---@field clear_shape fun(self, constants: TetrisConstants)
 ---@field close_window fun(self)
 ---@field cursor_hide fun(self)
 ---@field cursor_reset fun(self)
 ---@field debug fun(self)
+---@field draw fun(self, config: TetrisConfig, state: TetrisState)
 ---@field draw_field fun(self, constants: TetrisConstants, state: TetrisState)
 ---@field draw_layout fun(self)
 ---@field draw_level fun(self, level: string)
 ---@field draw_next fun(self, next_shape: TetrisShape)
+---@field draw_overlay fun(self, constants: TetrisConstants, state: TetrisState)
 ---@field draw_score fun(self, score: string)
 ---@field draw_shape fun(self, shape: TetrisShape, x: number, y: number, rotation: number)
 ---@field draw_top fun(self, top: string)
 ---@field new fun(options: table, shapes: table): TetrisRenderer
----@field setup fun(self, options: TetrisOptions, shapes: TetrisShape[])
 ---
 ---@param options TetrisOptions
 ---@param shapes TetrisShape[]
@@ -96,11 +100,15 @@ function Renderer:new(options, shapes)
 
   vim.api.nvim_set_hl(self.namespace, "TetrisLevel", { fg = "white", bold = true })
   vim.api.nvim_set_hl(self.namespace, "TetrisScore", { fg = "white", bold = true })
+  vim.api.nvim_set_hl(self.namespace, "TetrisStatus", { fg = "white", bold = true })
   vim.api.nvim_set_hl(self.namespace, "TetrisTop", { fg = "white", bold = true })
 
   for _, shape in ipairs(shapes) do
     vim.api.nvim_set_hl(self.namespace, "TetrisShape-" .. shape.color, { fg = shape.color })
   end
+
+  self:draw_layout()
+  vim.o.guicursor = "n-v-c-i-ci-ve-r-cr-o:ver25"
 
   return self
 end
@@ -133,6 +141,15 @@ function Renderer:_set_extmark(name, row, col, text, style)
   end
 end
 
+---@param constants TetrisConstants
+function Renderer:clear_shape(constants)
+  for sy = 0, constants.shape_size_max - 1 do
+    for sx = 0, constants.shape_size_max - 1 do
+      self:_del_extmark("c" .. sy .. sx)
+    end
+  end
+end
+
 function Renderer:close_window()
   if self.buffer and vim.api.nvim_buf_is_valid(self.buffer) then
     vim.api.nvim_buf_delete(self.buffer, { force = true })
@@ -148,7 +165,6 @@ end
 
 function Renderer:cursor_hide()
   vim.api.nvim_win_set_cursor(self.window, { self.pos_cursor[1], self.pos_cursor[2] })
-  vim.o.guicursor = "n-v-c-i-ci-ve-r-cr-o:ver25"
 end
 
 function Renderer:cursor_reset()
@@ -177,17 +193,25 @@ end
 
 ---@param config TetrisConfig
 ---@param state TetrisState
-function Renderer:draw(config, state, next_shape)
-  self:draw_layout()
+function Renderer:draw(config, state)
   self:cursor_hide()
 
   self:draw_field(config.constants, state)
-  self:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
+  self:clear_shape(config.constants)
 
-  self:draw_level("0")
-  self:draw_next(next_shape)
+  if state.current_shape then
+    self:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
+  end
+
+  self:draw_level(tostring(state.level))
+
+  if state.next_shape then
+    self:draw_next(state.next_shape)
+  end
+
+  self:draw_overlay(config.constants, state)
   self:draw_score(tostring(state.score))
-  self:draw_top("0")
+  self:draw_top(tostring(state.top_score))
 
   if config.options.debug then
     self:debug()
@@ -232,6 +256,28 @@ function Renderer:draw_next(next_shape)
   self:_set_extmark("next2", self.pos_next[1], self.pos_next[2], next_shape.display[2], hl)
 end
 
+---Game over and paused share one slot under the NEXT box, and only one of them
+---shows at a time. The blink runs off the clock rather than the tick counter,
+---which stops dead the moment the game is paused or over.
+---@param constants TetrisConstants
+---@param state TetrisState
+function Renderer:draw_overlay(constants, state)
+  local text
+
+  if state.is_game_over then
+    text = "GAME OVER"
+  elseif state.is_paused then
+    text = "PAUSED"
+  end
+
+  if not text or vim.uv.now() % (constants.blink_speed * 2) >= constants.blink_speed then
+    self:_del_extmark("status")
+    return
+  end
+
+  self:_set_extmark("status", self.pos_status[1], self.pos_status[2], text, "TetrisStatus")
+end
+
 ---@param score string
 function Renderer:draw_score(score)
   self:_set_extmark("score", self.pos_score[1] - 1, self.pos_score[2], score, "TetrisScore")
@@ -258,8 +304,6 @@ function Renderer:draw_shape(shape, x, y, rotation)
           self.block .. self.block,
           "TetrisShape-" .. shape.color
         )
-      else
-        self:_del_extmark("c" .. sy .. sx)
       end
     end
   end

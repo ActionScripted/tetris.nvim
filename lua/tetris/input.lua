@@ -13,12 +13,15 @@ end
 function Input:map_actions(buffer, mappings, events)
   for key, action in pairs(mappings) do
     if action == "noop" then
-      vim.api.nvim_buf_set_keymap(buffer, "n", key, "<Nop>", { noremap = true, silent = true })
+      vim.api.nvim_buf_set_keymap(buffer, "n", key, "<Nop>", { noremap = true, nowait = true, silent = true })
     else
       vim.api.nvim_buf_set_keymap(buffer, "n", key, "", {
         callback = function()
           events:emit(action, buffer)
         end,
+        noremap = true,
+        nowait = true,
+        silent = true,
       })
     end
   end

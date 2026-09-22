@@ -7,9 +7,13 @@ Controller.__index = Controller
 ---@field constants TetrisConstants
 ---@field renderer TetrisRenderer
 ---@field state TetrisState
+---
+---@field attempt_change fun(self, change: string): boolean
 ---@field pause fun(self)
 ---@field quit fun(self)
----@field reset fun(self)
+---@field restart fun(self)
+---@field shape_drop fun(self)
+---@field shape_lock fun(self)
 function Controller:new(opts)
   opts = opts or {}
 
@@ -30,19 +34,21 @@ function Controller:quit()
   self.renderer:close_window()
 end
 
-function Controller:reset()
-  self.state:reset()
+function Controller:restart()
+  self.state:reset(self.constants)
 end
 
 function Controller:shape_drop()
-  local can_move = true
-  while can_move do
-    can_move = self:attempt_change("down")
+  while self:attempt_change("down") do
   end
   self:shape_lock()
 end
 
 function Controller:shape_lock()
+  if self.state.is_paused or self.state.is_game_over or not self.state.current_shape then
+    return
+  end
+
   utils.add_to_field(
     self.constants,
     self.state,
@@ -53,9 +59,8 @@ function Controller:shape_lock()
   )
 
   ---TODO: move this
-  local shape = self.state.current_shape
   local lines = {}
-  for sy = 0, shape.size - 1 do
+  for sy = 0, self.state.current_shape.size - 1 do
     local field_y = sy + self.state.current_y
 
     local is_line = true
@@ -70,12 +75,26 @@ function Controller:shape_lock()
 
     if is_line then
       table.insert(lines, field_y)
-      ---TODO: move this
-      self.state.score = math.clamp(self.state.score + 100, self.constants.score_min, self.constants.score_max)
     end
   end
 
-  --move lines down
+  if #lines > 0 then
+    self.state.score = math.clamp(
+      self.state.score + self.constants.line_points[#lines],
+      self.constants.score_min,
+      self.constants.score_max
+    )
+    self.state.top_score = math.max(self.state.score, self.state.top_score)
+    self.state.lines_cleared = self.state.lines_cleared + #lines
+
+    local level = math.floor(self.state.lines_cleared / self.constants.lines_per_level)
+    if level > self.state.level then
+      self.state.level = level
+      self.state.drop_speed = math.max(self.constants.drop_speed_min, self.constants.drop_speed_initial - level * 5)
+    end
+  end
+
+  --- Pull everything above a cleared line down over it.
   for _, line in ipairs(lines) do
     for y = line, 1, -1 do
       for x = 0, self.constants.field_width - 1 do
@@ -83,6 +102,11 @@ function Controller:shape_lock()
         local above_field_index = self.constants.field_width * (y - 1) + x
         self.state.field[field_index] = self.state.field[above_field_index]
       end
+    end
+
+    --- Row 0 has nothing to pull, just set empty.
+    for x = 0, self.constants.field_width - 1 do
+      self.state.field[x] = self.constants.field_empty
     end
   end
 
@@ -108,15 +132,11 @@ function Controller:shape_rotate()
   self:attempt_change("rotate")
 end
 
-function Controller:tick()
-  --- Game loop/tick
-end
-
 --- TODO: reconsider this and where it lives
 --- TODO: reconsider this and where it lives
 --- TODO: reconsider this and where it lives
 function Controller:attempt_change(change)
-  if self.state.is_paused then
+  if self.state.is_paused or self.state.is_game_over or not self.state.current_shape then
     return false
   end
 
@@ -133,7 +153,7 @@ function Controller:attempt_change(change)
   end
 
   if
-    utils.can_move(
+    not utils.can_move(
       self.constants,
       self.state,
       self.state.current_shape,
@@ -142,11 +162,13 @@ function Controller:attempt_change(change)
       self.state.current_rotation + dr
     )
   then
-    self.state.current_x = self.state.current_x + dx
-    self.state.current_y = self.state.current_y + dy
-    self.state.current_rotation = self.state.current_rotation + dr
-    return true
+    return false
   end
+
+  self.state.current_x = self.state.current_x + dx
+  self.state.current_y = self.state.current_y + dy
+  self.state.current_rotation = self.state.current_rotation + dr
+  return true
 end
 
 return Controller

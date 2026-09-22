@@ -29,3 +29,5 @@ end
 function Field:reset()
   --- Reset the field
 end
+
+return Field

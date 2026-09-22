@@ -55,6 +55,12 @@ utils.add_to_field = function(constants, state, shape, x, y, rotation)
   end
 end
 
+---@param shapes TetrisShape[]
+---@return TetrisShape
+utils.random_shape = function(shapes)
+  return shapes[math.random(1, #shapes)]
+end
+
 --[[
 Get the rotated index of the shape piece.
 

@@ -1,6 +1,5 @@
 # TODO
 
-- [ ] chore:(core): new() versus setup() for proper Lua. why not new() with args?
 - [ ] docs: use kdheepak/panvimdoc or equivalent
 - [ ] feat(core): DRY-up all the events and init stuff, good golly
 - [ ] feat(core): add chaos mode (piece swap mid-drop, broken UI, noclip, etc.)
@@ -8,8 +7,6 @@
 - [ ] feat(core): stats for moves, pieces played, etc.
 - [ ] feat(state): load game state from file
 - [ ] feat(state): save game state to file
-- [ ] feat(ui): add game over screen
-- [ ] feat(ui): add pause screen
 - [ ] feat(ui): add start screen
 - [ ] feat(ui): add theme support
 - [ ] feat(ui): add title screen (maybe not, nice to just start)
@@ -20,11 +17,14 @@
 
 ## DONE
 
+- [x] chore:(core): new() versus setup() for proper Lua. why not new() with args?
 - [x] feat(core): add pieces
 - [x] feat(input): add piece movement
 - [x] feat(input): add piece rotation
 - [x] feat(pieces): change colors and/or support themes
+- [x] feat(ui): add game over screen
 - [x] feat(ui): add next piece preview
+- [x] feat(ui): add pause screen
 - [x] feat(ui): add score info
 - [x] feat(ui): hide cursor/input/block
 - [x] feat(ui): namespace for highlights
