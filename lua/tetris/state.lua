@@ -1,3 +1,5 @@
+local stats = require("tetris.stats")
+
 local State = {}
 State.__index = State
 
@@ -19,6 +21,7 @@ State.__index = State
 ---@field lowest_y number
 ---@field next_shape TetrisShape
 ---@field score number
+---@field stats TetrisStats
 ---@field top_score number
 ---
 ---@field load fun(self)
@@ -56,6 +59,7 @@ function State:reset(constants)
   self.lowest_y = 0
   self.next_shape = nil
   self.score = 0
+  self.stats = stats.new()
 
   --- TODO: move to Field class
   --- TODO: ...or move that stuff here?! Field, shapes, etc.

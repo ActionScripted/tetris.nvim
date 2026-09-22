@@ -51,6 +51,7 @@ function Controller:shape_drop()
     self.state.current_y,
     self.state.current_rotation
   )
+  self.state.stats.hard_drops = self.state.stats.hard_drops + 1
   self:shape_lock()
 end
 
@@ -67,6 +68,9 @@ function Controller:shape_lock()
     self.state.current_y,
     self.state.current_rotation
   )
+
+  local pieces = self.state.stats.pieces
+  pieces[self.state.current_shape.name] = (pieces[self.state.current_shape.name] or 0) + 1
 
   ---TODO: move this
   local lines = {}
@@ -89,6 +93,7 @@ function Controller:shape_lock()
   end
 
   if #lines > 0 then
+    self.state.stats.clears[#lines] = self.state.stats.clears[#lines] + 1
     self.state.score = math.clamp(
       self.state.score + self.constants.line_points[#lines] * (self.state.level + 1),
       self.constants.score_min,
@@ -178,6 +183,9 @@ function Controller:attempt_change(change)
   self.state.current_x = self.state.current_x + dx
   self.state.current_y = self.state.current_y + dy
   self.state.current_rotation = self.state.current_rotation + dr
+
+  self.state.stats.moves = self.state.stats.moves + math.abs(dx)
+  self.state.stats.rotations = self.state.stats.rotations + dr
 
   if self.state.current_y > self.state.lowest_y then
     self.state.lowest_y = self.state.current_y

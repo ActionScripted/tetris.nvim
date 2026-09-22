@@ -7,6 +7,7 @@ local Input = require("tetris.input")
 local Renderer = require("tetris.renderer")
 local State = require("tetris.state")
 local shapes = require("tetris.shapes")
+local stats = require("tetris.stats")
 local utils = require("tetris.utils")
 
 ---@class Tetris
@@ -79,6 +80,10 @@ tetris.run = function(config)
             state.current_y,
             state.current_rotation
           )
+
+          if state.is_game_over then
+            stats.save(state)
+          end
         end
 
         if not state.is_game_over then
