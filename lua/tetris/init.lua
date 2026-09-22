@@ -22,6 +22,10 @@ tetris.run = function(config)
   local renderer = Renderer:new(config.options, shapes)
   local state = State:new(config.constants)
 
+  vim.schedule(function()
+    state.top_score = math.max(state.top_score, stats.top_score())
+  end)
+
   ---"but in a game...a common trick", Lua docs
   math.randomseed(os.time())
 
