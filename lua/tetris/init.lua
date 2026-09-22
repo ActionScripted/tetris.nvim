@@ -58,8 +58,6 @@ tetris.run = function(config)
 
     local ok, err = pcall(function()
       if not state.is_paused and not state.is_game_over then
-        state.tick_count = state.tick_count + 1
-
         if not state.current_shape then
           state.current_shape = state.next_shape or utils.random_shape(shapes)
           state.next_shape = utils.random_shape(shapes)
@@ -67,6 +65,10 @@ tetris.run = function(config)
           state.current_rotation = 0
           state.current_x = math.floor((config.constants.field_width - state.current_shape.size) / 2)
           state.current_y = 0
+          state.gravity_ticks = 0
+          state.lock_resets = 0
+          state.lock_ticks = 0
+          state.lowest_y = 0
 
           ---Nowhere to put the new shape? That's the game.
           state.is_game_over = not utils.can_move(
@@ -79,9 +81,31 @@ tetris.run = function(config)
           )
         end
 
-        if not state.is_game_over and state.tick_count % state.drop_speed == 0 then
-          if not controller:attempt_change("down") then
-            controller:shape_lock()
+        if not state.is_game_over then
+          local is_grounded = not utils.can_move(
+            config.constants,
+            state,
+            state.current_shape,
+            state.current_x,
+            state.current_y + 1,
+            state.current_rotation
+          )
+
+          if is_grounded then
+            state.lock_ticks = state.lock_ticks + 1
+            if
+              state.lock_ticks >= config.constants.lock_delay
+              or state.lock_resets >= config.constants.lock_resets_max
+            then
+              controller:shape_lock()
+            end
+          else
+            state.lock_ticks = 0
+            state.gravity_ticks = state.gravity_ticks + 1
+            if state.gravity_ticks >= state.gravity then
+              state.gravity_ticks = 0
+              controller:attempt_change("down")
+            end
           end
         end
       end

@@ -6,16 +6,19 @@ State.__index = State
 ---@field current_shape TetrisShape
 ---@field current_x number
 ---@field current_y number
----@field drop_speed number
+---@field gravity number
+---@field gravity_ticks number
 ---@field field table
 ---@field is_game_over boolean
 ---@field is_paused boolean
 ---@field is_quitting boolean
 ---@field level number
 ---@field lines_cleared number
+---@field lock_resets number
+---@field lock_ticks number
+---@field lowest_y number
 ---@field next_shape TetrisShape
 ---@field score number
----@field tick_count number
 ---@field top_score number
 ---
 ---@field load fun(self)
@@ -40,16 +43,19 @@ function State:reset(constants)
   self.current_shape = nil
   self.current_x = 0
   self.current_y = 0
-  self.drop_speed = constants.drop_speed_initial
+  self.gravity = constants.gravity[1]
+  self.gravity_ticks = 0
   self.field = {}
   self.is_game_over = false
   self.is_paused = false
   self.is_quitting = false
   self.level = 0
   self.lines_cleared = 0
+  self.lock_resets = 0
+  self.lock_ticks = 0
+  self.lowest_y = 0
   self.next_shape = nil
   self.score = 0
-  self.tick_count = 0
 
   --- TODO: move to Field class
   --- TODO: ...or move that stuff here?! Field, shapes, etc.

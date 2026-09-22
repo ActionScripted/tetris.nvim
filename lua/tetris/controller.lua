@@ -80,7 +80,7 @@ function Controller:shape_lock()
 
   if #lines > 0 then
     self.state.score = math.clamp(
-      self.state.score + self.constants.line_points[#lines],
+      self.state.score + self.constants.line_points[#lines] * (self.state.level + 1),
       self.constants.score_min,
       self.constants.score_max
     )
@@ -90,7 +90,7 @@ function Controller:shape_lock()
     local level = math.floor(self.state.lines_cleared / self.constants.lines_per_level)
     if level > self.state.level then
       self.state.level = level
-      self.state.drop_speed = math.max(self.constants.drop_speed_min, self.constants.drop_speed_initial - level * 5)
+      self.state.gravity = self.constants.gravity[math.min(level + 1, #self.constants.gravity)]
     end
   end
 
@@ -168,6 +168,15 @@ function Controller:attempt_change(change)
   self.state.current_x = self.state.current_x + dx
   self.state.current_y = self.state.current_y + dy
   self.state.current_rotation = self.state.current_rotation + dr
+
+  if self.state.current_y > self.state.lowest_y then
+    self.state.lowest_y = self.state.current_y
+    self.state.lock_resets = 0
+  elseif self.state.lock_ticks > 0 and self.state.lock_resets < self.constants.lock_resets_max then
+    self.state.lock_resets = self.state.lock_resets + 1
+    self.state.lock_ticks = 0
+  end
+
   return true
 end
 
