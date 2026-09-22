@@ -1,6 +1,6 @@
 local stats = {}
 
-stats.path = vim.fn.stdpath("data") .. "/tetris/stats.jsonl"
+stats.path = vim.fn.stdpath("data") .. "/tetris.nvim/stats.jsonl"
 
 ---@class TetrisStats
 ---@field clears number[]
