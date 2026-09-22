@@ -42,6 +42,21 @@ utils.can_move = function(constants, state, shape, x, y, rotation)
   return true
 end
 
+---Lowest row the shape can fall to from where it is.
+---@param constants TetrisConstants
+---@param state TetrisState
+---@param shape TetrisShape
+---@param x number
+---@param y number
+---@param rotation number
+---@return number
+utils.drop_y = function(constants, state, shape, x, y, rotation)
+  while utils.can_move(constants, state, shape, x, y + 1, rotation) do
+    y = y + 1
+  end
+  return y
+end
+
 utils.add_to_field = function(constants, state, shape, x, y, rotation)
   for sy = 0, shape.size - 1 do
     for sx = 0, shape.size - 1 do

@@ -43,6 +43,7 @@ Renderer.pos_top = { 5, 27 }
 ---@field block string
 ---@field buffer number
 ---@field extmarks table<string, number>
+---@field ghost_block string
 ---@field guicursor string
 ---@field layout string[]
 ---@field namespace number
@@ -57,7 +58,8 @@ Renderer.pos_top = { 5, 27 }
 ---@field window number
 ---
 ---@field _del_extmark fun(self, name: string)
----@field _set_extmark fun(self, name: string, row: number, col: number, text: string, style: string)
+---@field _draw_cells fun(self, name: string, shape: TetrisShape, x: number, y: number, rotation: number, text: string, priority?: number)
+---@field _set_extmark fun(self, name: string, row: number, col: number, text: string, style: string, priority?: number)
 ---@field clear_shape fun(self, constants: TetrisConstants)
 ---@field close_window fun(self)
 ---@field cursor_hide fun(self)
@@ -65,6 +67,7 @@ Renderer.pos_top = { 5, 27 }
 ---@field debug fun(self)
 ---@field draw fun(self, config: TetrisConfig, state: TetrisState)
 ---@field draw_field fun(self, constants: TetrisConstants, state: TetrisState)
+---@field draw_ghost fun(self, shape: TetrisShape, x: number, y: number, rotation: number)
 ---@field draw_layout fun(self)
 ---@field draw_level fun(self, level: string)
 ---@field draw_next fun(self, next_shape: TetrisShape)
@@ -85,6 +88,7 @@ function Renderer:new(options, shapes)
   self.block = options.block
   self.buffer = vim.api.nvim_create_buf(false, true)
   self.extmarks = {}
+  self.ghost_block = options.ghost_block
   self.guicursor = vim.o.guicursor
   self.namespace = vim.api.nvim_create_namespace("tetris")
   self.window = vim.api.nvim_open_win(self.buffer, true, {
@@ -121,20 +125,54 @@ function Renderer:_del_extmark(name)
   end
 end
 
+---One extmark per filled cell of the shape, named by prefix and cell.
+---@param name string
+---@param shape TetrisShape
+---@param x number
+---@param y number
+---@param rotation number
+---@param text string
+---@param priority? number
+function Renderer:_draw_cells(name, shape, x, y, rotation, text, priority)
+  local field_x = x * 2 + self.pos_field_start[1]
+  local field_y = y + self.pos_field_start[2]
+
+  for sy = 0, shape.size - 1 do
+    for sx = 0, shape.size - 1 do
+      local index = utils.rotated_index(sx, sy, shape.size, rotation)
+      local char = shape.data:sub(index + 1, index + 1)
+
+      if char == "X" then
+        self:_set_extmark(
+          name .. sy .. sx,
+          field_y + sy,
+          field_x + (sx * 2),
+          text,
+          "TetrisShape-" .. shape.color,
+          priority
+        )
+      end
+    end
+  end
+end
+
 ---@param name string
 ---@param row number
 ---@param col number
 ---@param text string
 ---@param style string
-function Renderer:_set_extmark(name, row, col, text, style)
+---@param priority? number
+function Renderer:_set_extmark(name, row, col, text, style, priority)
   if not self.extmarks[name] then
     self.extmarks[name] = vim.api.nvim_buf_set_extmark(self.buffer, self.namespace, row, col, {
+      priority = priority,
       virt_text = { { tostring(text), style } },
       virt_text_pos = "overlay",
     })
   else
     vim.api.nvim_buf_set_extmark(self.buffer, self.namespace, row, col, {
       id = self.extmarks[name],
+      priority = priority,
       virt_text = { { tostring(text), style } },
       virt_text_pos = "overlay",
     })
@@ -146,6 +184,7 @@ function Renderer:clear_shape(constants)
   for sy = 0, constants.shape_size_max - 1 do
     for sx = 0, constants.shape_size_max - 1 do
       self:_del_extmark("c" .. sy .. sx)
+      self:_del_extmark("g" .. sy .. sx)
     end
   end
 end
@@ -200,6 +239,18 @@ function Renderer:draw(config, state)
   self:clear_shape(config.constants)
 
   if state.current_shape then
+    if config.options.ghost then
+      local ghost_y = utils.drop_y(
+        config.constants,
+        state,
+        state.current_shape,
+        state.current_x,
+        state.current_y,
+        state.current_rotation
+      )
+      self:draw_ghost(state.current_shape, state.current_x, ghost_y, state.current_rotation)
+    end
+
     self:draw_shape(state.current_shape, state.current_x, state.current_y, state.current_rotation)
   end
 
@@ -238,6 +289,15 @@ function Renderer:draw_field(constants, state)
       end
     end
   end
+end
+
+---Where the shape would land, drawn under the shape itself.
+---@param shape TetrisShape
+---@param x number
+---@param y number
+---@param rotation number
+function Renderer:draw_ghost(shape, x, y, rotation)
+  self:_draw_cells("g", shape, x, y, rotation, self.ghost_block .. self.ghost_block, 1)
 end
 
 function Renderer:draw_layout()
@@ -288,25 +348,7 @@ end
 ---@param y number
 ---@param rotation number
 function Renderer:draw_shape(shape, x, y, rotation)
-  local field_x = x * 2 + self.pos_field_start[1]
-  local field_y = y + self.pos_field_start[2]
-
-  for sy = 0, shape.size - 1 do
-    for sx = 0, shape.size - 1 do
-      local index = utils.rotated_index(sx, sy, shape.size, rotation)
-      local char = shape.data:sub(index + 1, index + 1)
-
-      if char == "X" then
-        self:_set_extmark(
-          "c" .. sy .. sx,
-          field_y + sy,
-          field_x + (sx * 2),
-          self.block .. self.block,
-          "TetrisShape-" .. shape.color
-        )
-      end
-    end
-  end
+  self:_draw_cells("c", shape, x, y, rotation, self.block .. self.block)
 end
 
 ---@param top string

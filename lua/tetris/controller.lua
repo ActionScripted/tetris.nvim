@@ -39,8 +39,18 @@ function Controller:restart()
 end
 
 function Controller:shape_drop()
-  while self:attempt_change("down") do
+  if self.state.is_paused or self.state.is_game_over or not self.state.current_shape then
+    return
   end
+
+  self.state.current_y = utils.drop_y(
+    self.constants,
+    self.state,
+    self.state.current_shape,
+    self.state.current_x,
+    self.state.current_y,
+    self.state.current_rotation
+  )
   self:shape_lock()
 end
 

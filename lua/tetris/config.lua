@@ -40,10 +40,14 @@ Config.constants = {
 ---@class TetrisOptions
 ---@field block string
 ---@field debug boolean
+---@field ghost boolean
+---@field ghost_block string
 ---@field mappings table<string, string>
 Config.defaults = {
   block = "█",
   debug = false,
+  ghost = true,
+  ghost_block = "░",
   mappings = {
     ["<Down>"] = "down",
     ["<Esc>"] = "quit",

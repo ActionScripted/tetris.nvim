@@ -31,6 +31,8 @@ These are the defaults:
 {
   block = "█",
   debug = false,
+  ghost = true,
+  ghost_block = "░",
   mappings = {
     ["<Down>"] = "down",
     ["<Esc>"] = "quit",
